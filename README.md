@@ -78,9 +78,6 @@ Peticiones HTTP (GET, POST, PUT, DELETE)
 
 Es el driver que permite conectar Node.js con MySQL
 Nos permite ejecutar consultas a la base de datos
-
-### Mysql2
-
 Conexión manual a la bd.
 
 ### dotenv
