@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="public/styles/styles.css">
+    <link rel="stylesheet" href="/public/styles/styles.css">
     <title>Inmobiliaria AO2</title>
 </head>
 <body>
@@ -52,8 +52,9 @@
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <h2>Agregar Propiedad</h2>
-            <form id="propertyForm" class="modal-form">
+            <form id="propertyForm" class="modal-form" enctype="multipart/form-data">
                 <input type="text" name="codigo" placeholder="Código de propiedad" required>
+                <input type="text" name="titulo" placeholder="Título de la propiedad" required>                
                 <select name="tipo" required>
                     <option value="venta">Venta</option>
                     <option value="alquiler">Alquiler</option>
@@ -66,11 +67,12 @@
                     <option value="reservado">Reservado</option>
                     <option value="vendido">Vendido/Alquilado</option>
                 </select>
+                <input type="file" name="imagen" accept="image/*" required>
                 <button type="submit" class="btn">Guardar</button>
             </form>
         </div>
     </div>
 
-    <script src="public/scripts/scripts.js"></script>
+    <script src="/public/scripts/scripts.js"></script>
 </body>
 </html>

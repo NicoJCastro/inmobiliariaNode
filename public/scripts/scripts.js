@@ -29,7 +29,7 @@ async function loadProperties(filters = {}) {
                 displayProperties(data.data);
             } else {
                 console.warn('La respuesta de la API no contiene un array de propiedades');
-                displayProperties([]); // Maneja el caso donde data.data no es un array
+                displayProperties([]); 
             }
         } else {
             throw new Error(data.error);
@@ -51,21 +51,42 @@ function displayProperties(properties) {
         return;
     }
 
-    propertiesGrid.innerHTML = properties.map(property => `
-        <div class="property-card">
-            <img src="/api/placeholder/400/320" alt="Propiedad" class="property-image">
-        </div>
-    `).join('');
+    propertiesGrid.innerHTML = properties.map(property => {
+        console.log('property.imagen:', property.imagen); // Imprime el valor de property.imagen
+
+        // Ajusta la ruta de la imagen para evitar duplicados
+        const imagePath = property.imagen.startsWith('/images/') ? property.imagen : `/images/${property.imagen}`;
+
+        return `
+            <div class="property-card">
+                ${property.imagen ? `<img src="${imagePath}" alt="${property.titulo}" class="property-image" onerror="this.style.display='none'">` : ''}
+                <div class="property-info">
+                    <h3>${property.titulo}</h3>
+                    <p class="property-code">Código: ${property.codigo}</p>
+                    <p class="property-price">$${property.precio.toLocaleString()}</p>
+                    <p class="property-address">${property.direccion}</p>
+                    <p class="property-type">${property.tipo}</p>
+                    <p class="property-status">${property.estado}</p>
+                    <div class="property-actions">
+                        <button onclick="editProperty(${property.id})" class="btn btn-edit">
+                            <i class="fas fa-edit"></i> Editar
+                        </button>
+                        <button onclick="deleteProperty(${property.id})" class="btn btn-delete">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
-async function createProperty(propertyData) {
+async function createProperty(formData) {
     try {
+        console.log('Form Data:', [...formData]);
         const response = await fetch(`${API_URL}/propiedades`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(propertyData)
+            body: formData // Aquí usamos el FormData en lugar de JSON.stringify
         });
 
         const data = await response.json();
@@ -81,6 +102,12 @@ async function createProperty(propertyData) {
         alert('Error al crear la propiedad');
     }
 }
+
+propertyForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(propertyForm); // Usamos FormData para enviar archivos
+    createProperty(formData);
+});
 
 async function deleteProperty(id) {
     if (confirm('¿Estás seguro de querer eliminar esta propiedad?')) {

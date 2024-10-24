@@ -1,4 +1,41 @@
 const Propiedad = require('../models/Propiedad');
+const multer = require('multer');
+const path = require('path');
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images');        
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname)); 
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    const fileType = /jpeg|jpg|png|gif/;
+    const extname = fileType.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = fileType.test(file.mimetype);
+
+    if (extname && mimetype) {
+        return cb(null, true);
+    } else {
+        cb(new Errors("Solo se permiten imagenes en formato jpeg, jpg o png"));
+    }
+};
+
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 1024 * 1024 * 5 } // Limitar a 5 MB
+}).single('imagen');
+
+function generatePropertyCode() {
+    const prefix = 'PROP';
+    const timestamp = Date.now().toString().slice(-6); // Últimos 6 dígitos del timestamp
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // 3 dígitos aleatorios
+    return `${prefix}-${timestamp}-${random}`;
+}
 
 const propiedadController = {
 
@@ -24,16 +61,37 @@ const propiedadController = {
 
     // Crear una propiedad
     create: async (req, res) => {
-        try {
-            const resultado = await Propiedad.create(req.body);
-            res.status(201).json({ 
-                success: true, 
-                message: 'Propiedad creada exitosamente',
-                data: { id: resultado.insertId, ...req.body }
-            });
-        } catch (error) {
-            res.status(500).json({ success: false, error: error.message });
-        }
+        upload(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({ success: false, error: err.message });
+            }
+
+            try {
+                const { titulo, descripcion, precio, direccion } = req.body;
+                const imagen = req.file ? `/images/${req.file.filename}` : null; // Ruta de la imagen
+
+                const codigo = generatePropertyCode();
+
+                const newProperty = {
+                    codigo,
+                    titulo,
+                    descripcion,
+                    precio,
+                    direccion,
+                    imagen 
+                };
+
+                const resultado = await Propiedad.create(newProperty);
+                console.log('Datos a insertar en la base de datos:', newProperty);
+                res.status(201).json({ 
+                    success: true, 
+                    message: 'Propiedad creada exitosamente',
+                    data: { id: resultado.insertId, ...newProperty }
+                });
+            } catch (error) {
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
     },
 
     // Actualizar una propiedad

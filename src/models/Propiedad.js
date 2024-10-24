@@ -30,8 +30,12 @@ class Propiedad {
     static create(propiedadData) {
         return new Promise((resolve, reject) => {
             db.query('INSERT INTO propiedades SET ?', propiedadData, (err, result) => {
-                if (err) reject(err);
-                resolve(result);
+                if (err) {
+                    console.error('Error en la consulta de inserción:', err); 
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
             });
         });
     }
@@ -84,6 +88,11 @@ class Propiedad {
             if (filters.estado) {
                 query += ' AND estado = ?';
                 valores.push(filters.estado);
+            }
+
+            if (filters.images) {
+                query += ' AND images > 0';
+                valores.push(filters.images);
             }
 
             db.query(query, valores, (err, results) => {
