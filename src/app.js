@@ -6,12 +6,12 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configuración de archivos estáticos
+
 app.use('/images', express.static(path.join(__dirname, '../public/images')));
 app.use('/public', express.static(path.join(__dirname, '../public')));
 
@@ -19,10 +19,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
-// Routes
+
 app.use('/api/propiedades', propiedadRouter);
 
-// Manejo de errores generales
+
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({
@@ -32,7 +32,7 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Middleware para manejar rutas no encontradas
+
 app.use((req, res) => {
     res.status(404).json({
         success: false,
