@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const propiedadRouter = require('./routes/propiedadesRouter');
+const clienteRouter = require('./routes/clientesRouter');
 require('dotenv').config();
 
 const app = express();
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 
 
 app.use('/api/propiedades', propiedadRouter);
+app.use('/api/clientes', clienteRouter);
 
 
 app.use((err, req, res, next) => {

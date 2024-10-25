@@ -27,13 +27,13 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 1024 * 1024 * 5 } // Limitar a 5 MB
+    limits: { fileSize: 1024 * 1024 * 5 } 
 }).single('imagen');
 
 function generatePropertyCode() {
     const prefix = 'PROP';
-    const timestamp = Date.now().toString().slice(-6); // Últimos 6 dígitos del timestamp
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // 3 dígitos aleatorios
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     return `${prefix}-${timestamp}-${random}`;
 }
 
