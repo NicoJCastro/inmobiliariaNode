@@ -1,6 +1,10 @@
 const Propiedad = require('../models/Propiedad');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+const { promisify } = require('util');
+const unlinkAsync = promisify(fs.unlink);
+
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -38,8 +42,7 @@ function generatePropertyCode() {
 }
 
 const propiedadController = {
-
-    //Obtengo todas las propiedades
+    
     getAll: async (req, res) => {
         try {
             const propiedades = await Propiedad.getAll();
@@ -49,7 +52,7 @@ const propiedadController = {
         }
     },
 
-    // Obtener una propiedad por id
+   
     getById: async (req, res) => {
         try {
             const propiedad = await Propiedad.getById(req.params.id);
@@ -59,7 +62,7 @@ const propiedadController = {
         }
     },
 
-    // Crear una propiedad
+   
     create: async (req, res) => {
         upload(req, res, async (err) => {
             if (err) {
@@ -68,7 +71,7 @@ const propiedadController = {
 
             try {
                 const { titulo, descripcion, precio, direccion } = req.body;
-                const imagen = req.file ? `/images/${req.file.filename}` : null; // Ruta de la imagen
+                const imagen = req.file ? `/images/${req.file.filename}` : null; 
 
                 const codigo = generatePropertyCode();
 
@@ -94,7 +97,7 @@ const propiedadController = {
         });
     },
 
-    // Actualizar una propiedad
+   
     update: async (req, res) => {
         try {
             const resultado = await Propiedad.update(req.params.id, req.body);
@@ -111,21 +114,47 @@ const propiedadController = {
         }
     },
 
-    // Eliminar una propiedad
+   
 
     delete: async (req, res) => {
         try {
-            const resultado = await Propiedad.delete(req.params.id);
-            if (resultado.affectedRows === 0) {
-                return res.status(404).json({ success: false, message: 'Propiedad no encontrada' });
+           
+            const propiedad = await Propiedad.getById(req.params.id);
+            
+            if (!propiedad) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Propiedad no encontrada' 
+                });
             }
-            res.json({ success: true, message: 'Propiedad eliminada exitosamente' });
+
+           
+            const resultado = await Propiedad.delete(req.params.id);
+
+           
+            if (resultado.affectedRows > 0 && propiedad.imagen) {
+                try {
+                    const imagePath = path.join(process.cwd(), 'public', propiedad.imagen);
+                    console.log('Intentando eliminar imagen en:', imagePath);
+                    await unlinkAsync(imagePath);
+                } catch (unlinkError) {                    
+                    console.error('Error al eliminar la imagen:', unlinkError);
+                }
+            }
+
+            res.json({ 
+                success: true, 
+                message: 'Propiedad y sus archivos asociados eliminados exitosamente' 
+            });
         } catch (error) {
-            res.status(500).json({ success: false, error: error.message });
+            res.status(500).json({ 
+                success: false, 
+                error: error.message 
+            });
         }
     },
 
-    // Buscar propiedades
+    
 
     searchWithFilters: async (req, res) => {
         try {
