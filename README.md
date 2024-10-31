@@ -6,16 +6,19 @@ inmobiliaria-api/
 |   └── scripts/
 ├── src/
 │   ├── routes/           👈 Maneja las peticiones HTTP y las redirige a los controladores
-│   │   ├── propiedades.js
-│   │   ├── agentes.js
-│   │   └── clientes.js
+│   │   ├── propiedadesRouter.js
+│   │   ├── agentesRouter.js
+│   │   ├── interesesRouter.js
+│   │   └── clientesRouter.js
 │   ├── controllers/      👈 Contiene la lógica de la aplicación, llama a los modelos y retorna la respuesta adecuada
 │   │   ├── propiedadController.js
 │   │   ├── agenteController.js
+│   │   ├── interesesController.js
 │   │   └── clienteController.js
 │   ├── models/           👈 Define las estructuras de datos y las interacciones con la base de datos
 │   │   ├── Propiedad.js
 │   │   ├── Agente.js
+│   │   ├── Intereses.js        
 │   │   └── Cliente.js
 │   ├── middleware/       👈 Para autenticación, validación, manejo de errores, etc.
 │   │   ├── auth.js
@@ -91,3 +94,4 @@ Se crea en un archivo .env
 Reinicia automáticamente el servidor cuando detecta cambios en el código
 Solo se usa durante el desarrollo
 Por eso se instala con --save-dev
+Ejecutar npm run dev

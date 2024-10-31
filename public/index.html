@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Inmobiliaria AO2 - Encuentra tu hogar ideal con nosotros">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/public/styles/styles.css">
-    <title>Inmobiliaria AO2</title>
+    <title>Inmobiliaria AO2 - Tu hogar ideal</title>
 </head>
+
 <body>
     <header class="header">
         <nav class="navbar">
@@ -14,47 +17,141 @@
                 <i class="fas fa-home"></i> Inmobiliaria AO2
             </div>
             <div class="nav-links">
-                <a href="#" class="active">Inicio</a>
-                <a href="#">Propiedades</a>
-                <a href="#">Contacto</a>
+                <a href="index.html" class="active">Inicio</a>
+                <a href="propiedades.html">Propiedades</a>
+                <a href="#contacto">Contacto</a>
                 <a href="#" id="addPropertyBtn" class="btn">Agregar Propiedad</a>
             </div>
         </nav>
     </header>
 
     <main class="main-content">
-        <section class="filters">
-            <form id="filterForm">
-                <select name="tipo" id="tipo">
-                    <option value="">Tipo de operación</option>
-                    <option value="venta">Venta</option>
-                    <option value="alquiler">Alquiler</option>
-                </select>
-                <input type="number" name="precioMin" id="precioMin" placeholder="Precio mínimo">
-                <input type="number" name="precioMax" id="precioMax" placeholder="Precio máximo">
-                <select name="estado" id="estado">
-                    <option value="">Estado</option>
-                    <option value="disponible">Disponible</option>
-                    <option value="reservado">Reservado</option>
-                    <option value="vendido">Vendido</option>
-                </select>
-                <button type="submit" class="btn">Buscar</button>
-            </form>
+        <!-- Hero -->
+        <section class="hero container-fluid py-5">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="hero-content col-lg-6">
+                        <h1 class="display-4 fw-bold mb-4">Encuentra tu hogar ideal</h1>
+                        <p class="lead mb-4">Explora nuestra amplia gama de propiedades seleccionadas para ti. Casas, departamentos y locales en las mejores ubicaciones.</p>
+                        <div class="d-flex gap-3">
+                            <a href="propiedades.html" class="btn btn-primary btn-lg">Explorar Propiedades</a>
+                            <a href="contacto.html" class="btn btn-outline-primary btn-lg">Contáctanos</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 mt-4 mt-lg-0">
+                        <img src="images/fondoprop.jpg" alt="Propiedades destacadas" class="hero-image img-fluid rounded shadow">
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <section class="properties-grid" id="propertiesGrid">
-            <!-- Las propiedades se cargarán dinámicamente aquí -->
+        <!-- Mostrar propiedades destacadas -->
+        <section class="featured-properties container py-5">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">Propiedades Destacadas</h2>
+                <p class="lead text-muted">Las mejores opciones seleccionadas para ti</p>
+            </div>
+            <div id="featuredProperties" class="property-cards row g-4">
+                <!-- Las propiedades se cargarán dinámicamente aquí -->
+            </div>
+    
+        </section>
+
+        <!-- Beneficios de la Inmo -->
+        <section class="about-us container py-5">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold">¿Por qué elegirnos?</h2>
+                <p class="lead text-muted">Tu satisfacción es nuestra prioridad</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-home fa-3x text-primary mb-3"></i>
+                            <h3 class="h4">Amplio catálogo</h3>
+                            <p>Más de 1000 propiedades disponibles para ti</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                            <h3 class="h4">Seguridad garantizada</h3>
+                            <p>Todas nuestras operaciones están respaldadas legalmente</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-headset fa-3x text-primary mb-3"></i>
+                            <h3 class="h4">Soporte 24/7</h3>
+                            <p>Estamos aquí para ayudarte en todo momento</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contactar -->
+        <section id="contacto" class="call-to-action py-5 bg-primary text-white">
+            <div class="container text-center">
+                <h2 class="display-5 fw-bold mb-4">¿Necesitas asesoramiento?</h2>
+                <p class="lead mb-4">Nuestro equipo de expertos está listo para ayudarte a encontrar tu propiedad ideal</p>
+                <form class="row justify-content-center g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control form-control-lg" placeholder="Nombre completo">
+                    </div>
+                    <div class="col-md-4">
+                        <input type="email" class="form-control form-control-lg" placeholder="Correo electrónico">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-light btn-lg w-100">Contactar</button>
+                    </div>
+                </form>
+            </div>
         </section>
     </main>
 
-    <!-- Modal para agregar/editar propiedad -->
+    <!-- FOOTER CON REDES -->
+
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h5>Inmobiliaria AO2</h5>
+                    <p>Tu partner inmobiliario de confianza</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Contacto</h5>
+                    <p><i class="fas fa-phone me-2"></i> +1234567890</p>
+                    <p><i class="fas fa-envelope me-2"></i> info@inmobiliariaao2.com</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Síguenos</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-white"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2024 Inmobiliaria AO2. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- VER SI LO MANEJO DESDE ACA O EN PROPIEDADES ||| CAPAZ CUANDO SE LOGEE UN ADMIN PUEDA VER ESTA SECCIÓN -->
     <div class="modal" id="propertyModal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <h2>Agregar Propiedad</h2>
             <form id="propertyForm" class="modal-form" enctype="multipart/form-data">
                 <input type="text" name="codigo" placeholder="Código de propiedad" required>
-                <input type="text" name="titulo" placeholder="Título de la propiedad" required>                
+                <input type="text" name="titulo" placeholder="Título de la propiedad" required>
                 <select name="tipo" required>
                     <option value="venta">Venta</option>
                     <option value="alquiler">Alquiler</option>
@@ -73,6 +170,7 @@
         </div>
     </div>
 
-    <script src="/public/scripts/scripts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/public/scripts/index.js"></script>
 </body>
 </html>

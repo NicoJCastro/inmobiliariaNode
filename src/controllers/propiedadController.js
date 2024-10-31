@@ -77,6 +77,7 @@ const propiedadController = {
 
                 const newProperty = {
                     codigo,
+                    tipo,
                     titulo,
                     descripcion,
                     precio,

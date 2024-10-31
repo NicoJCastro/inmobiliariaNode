@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/public/styles/styles.css">
+    <title>Inmobiliaria AO2</title>
+</head>
+<body>
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fas fa-home"></i> Inmobiliaria AO2
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="active">Inicio</a>
+                <a href="propiedades.html">Propiedades</a>
+                <a href="index.html#contacto">Contacto</a>
+                <a href="#" id="addPropertyBtn" class="btn">Agregar Propiedad</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section class="filters">
+            <form id="filterForm">
+                <select name="tipo" id="tipo">
+                    <option value="">Tipo de operación</option>
+                    <option value="venta">Venta</option>
+                    <option value="alquiler">Alquiler</option>
+                </select>
+                <input type="number" name="precioMin" id="precioMin" placeholder="Precio mínimo">
+                <input type="number" name="precioMax" id="precioMax" placeholder="Precio máximo">
+                <select name="estado" id="estado">
+                    <option value="">Estado</option>
+                    <option value="disponible">Disponible</option>
+                    <option value="reservado">Reservado</option>
+                    <option value="vendido">Vendido</option>
+                </select>
+                <button type="submit" class="btn">Buscar</button>
+            </form>
+        </section>
+
+        <section class="properties-grid" id="propertiesGrid">
+            <!-- Las propiedades se cargarán dinámicamente aquí -->
+        </section>
+    </main>
+
+    <!-- VER SI LO MANEJO DESDE ACA O EN PROPIEDADES ||| CAPAZ CUANDO SE LOGEE UN ADMIN PUEDA VER ESTA SECCIÓN -->
+
+    <div class="modal" id="propertyModal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Agregar Propiedad</h2>
+            <form id="propertyForm" class="modal-form" enctype="multipart/form-data">
+                <input type="text" name="codigo" placeholder="Código de propiedad" required>
+                <input type="text" name="titulo" placeholder="Título de la propiedad" required>                
+                <select name="tipo" required>
+                    <option value="venta">Venta</option>
+                    <option value="alquiler">Alquiler</option>
+                </select>
+                <input type="text" name="direccion" placeholder="Dirección" required>
+                <input type="number" name="precio" placeholder="Precio" required>
+                <textarea name="descripcion" placeholder="Descripción" required></textarea>
+                <select name="estado" required>
+                    <option value="disponible">Disponible</option>
+                    <option value="reservado">Reservado</option>
+                    <option value="vendido">Vendido/Alquilado</option>
+                </select>
+                <input type="file" name="imagen" accept="image/*" required>
+                <button type="submit" class="btn">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/public/scripts/propiedades.js"></script>
+</body>
+</html>

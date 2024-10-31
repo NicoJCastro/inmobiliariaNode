@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const PORT = process.env.PORT || 3000;
 const path = require('path');
 const propiedadRouter = require('./routes/propiedadesRouter');
 const clienteRouter = require('./routes/clientesRouter');
@@ -42,7 +43,6 @@ app.use((req, res) => {
     });
 });
 
-const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
