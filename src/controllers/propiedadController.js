@@ -66,11 +66,24 @@ const propiedadController = {
     create: async (req, res) => {
         upload(req, res, async (err) => {
             if (err) {
+                console.error('Error en upload:', err);
                 return res.status(400).json({ success: false, error: err.message });
             }
 
             try {
-                const { titulo, descripcion, precio, direccion } = req.body;
+
+                const requiredFields = ['titulo', 'tipo', 'descripcion', 'precio', 'direccion'];
+                const missingFields = requiredFields.filter(field => !req.body[field]);
+
+                if (missingFields.length > 0) {
+                    return res.status(400).json({ 
+                        success: false, 
+                        error: `Faltan campos requeridos: ${missingFields.join(', ')}` 
+                    });
+                }
+
+
+                const { titulo, tipo, descripcion, precio, direccion } = req.body;
                 const imagen = req.file ? `/images/${req.file.filename}` : null; 
 
                 const codigo = generatePropertyCode();
@@ -80,39 +93,92 @@ const propiedadController = {
                     tipo,
                     titulo,
                     descripcion,
-                    precio,
+                    precio: parseFloat(precio),
                     direccion,
-                    imagen 
+                    imagen,
+                    estado: req.body.estado || 'disponible'
                 };
 
-                const resultado = await Propiedad.create(newProperty);
+                
                 console.log('Datos a insertar en la base de datos:', newProperty);
+
+                const resultado = await Propiedad.create(newProperty);
+
                 res.status(201).json({ 
                     success: true, 
                     message: 'Propiedad creada exitosamente',
                     data: { id: resultado.insertId, ...newProperty }
                 });
             } catch (error) {
-                res.status(500).json({ success: false, error: error.message });
+                console.error('Error en create:', error);
+                res.status(500).json({ success: false, error: error.message || 'Error al crear la propiedad' });
             }
         });
     },
 
    
     update: async (req, res) => {
-        try {
-            const resultado = await Propiedad.update(req.params.id, req.body);
-            if (resultado.affectedRows === 0) {
-                return res.status(404).json({ success: false, message: 'Propiedad no encontrada' });
+        upload(req, res, async (err) => {
+            if (err) {
+                return res.status(400).json({ success: false, error: err.message });
             }
-            res.json({ 
-                success: true, 
-                message: 'Propiedad actualizada exitosamente',
-                data: { id: req.params.id, ...req.body }
-            });
-        } catch (error) {
-            res.status(500).json({ success: false, error: error.message });
-        }
+    
+            try {
+                // Obtener la propiedad actual
+                const propiedadActual = await Propiedad.getById(req.params.id);
+                if (!propiedadActual) {
+                    return res.status(404).json({ success: false, message: 'Propiedad no encontrada' });
+                }
+    
+                // Preparar los datos actualizados
+                const datosActualizados = {
+                    titulo: req.body.titulo,
+                    tipo: req.body.tipo,
+                    descripcion: req.body.descripcion,
+                    precio: parseFloat(req.body.precio),
+                    direccion: req.body.direccion,
+                    estado: req.body.estado
+                };
+    
+                // Manejar la imagen
+                if (req.file) {
+                    // Si hay una nueva imagen
+                    datosActualizados.imagen = `/images/${req.file.filename}`;
+                    
+                    // Eliminar la imagen anterior si existe
+                    if (propiedadActual.imagen) {
+                        try {
+                            const imagePath = path.join(process.cwd(), 'public', propiedadActual.imagen);
+                            if (fs.existsSync(imagePath)) {
+                                await unlinkAsync(imagePath);
+                            }
+                        } catch (unlinkError) {
+                            console.error('Error al eliminar la imagen anterior:', unlinkError);
+                        }
+                    }
+                } else if (req.body.imagen && req.body.imagen.startsWith('/images/')) {
+                    // Mantener la imagen actual si no se sube una nueva
+                    datosActualizados.imagen = req.body.imagen;
+                }
+    
+                console.log('Datos actualizados:', datosActualizados);
+    
+                const resultado = await Propiedad.update(req.params.id, datosActualizados);
+                
+                if (resultado.affectedRows === 0) {
+                    return res.status(404).json({ success: false, message: 'Propiedad no encontrada' });
+                }
+    
+                res.json({ 
+                    success: true, 
+                    message: 'Propiedad actualizada exitosamente',
+                    data: { id: req.params.id, ...datosActualizados }
+                });
+            } catch (error) {
+                console.error('Error en update:', error);
+                res.status(500).json({ success: false, error: error.message });
+            }
+        });
     },
 
    

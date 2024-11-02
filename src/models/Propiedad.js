@@ -44,9 +44,25 @@ class Propiedad {
 
     static update(id, propiedadData) {
         return new Promise((resolve, reject) => {
-            db.query('UPDATE propiedades SET ? WHERE id = ?', [propiedadData, id], (err, result) => {
-                if (err) reject(err);
-                resolve(result);
+            if (Object.keys(propiedadData).length === 0) {
+                return reject(new Error('No hay datos para actualizar'));
+            }
+    
+            // Verificar que propiedadData no esté vacío
+            const fieldsToUpdate = Object.keys(propiedadData).filter(key => propiedadData[key] !== undefined && propiedadData[key] !== null);
+            if (fieldsToUpdate.length === 0) {
+                return reject(new Error('No hay datos válidos para actualizar'));
+            }
+    
+            const query = 'UPDATE propiedades SET ? WHERE id = ?';
+            console.log('SQL Query:', query, [propiedadData, id]); // Agregar esta línea para depuración
+            db.query(query, [propiedadData, id], (err, result) => {
+                if (err) {
+                    console.error('Error en la consulta de actualización:', err); // Agregar esta línea para depuración
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
             });
         });
     }

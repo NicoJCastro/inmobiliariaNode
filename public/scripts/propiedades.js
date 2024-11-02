@@ -54,12 +54,12 @@ function displayProperties(properties) {
     propertiesGrid.innerHTML = properties.map(property => {
         console.log('property.imagen:', property.imagen); // Imprime el valor de property.imagen
 
-        // Ajusta la ruta de la imagen para evitar duplicados
-        const imagePath = property.imagen.startsWith('/images/') ? property.imagen : `/images/${property.imagen}`;
+        // Verifica si property.imagen es válido antes de usar startsWith
+        const imagePath = property.imagen && property.imagen.startsWith('/images/') ? property.imagen : `/images/${property.imagen || 'default.jpg'}`;
 
         return `
             <div class="property-card">
-                ${property.imagen ? `<img src="${imagePath}" alt="${property.titulo}" class="property-image" onerror="this.style.display='none'">` : ''}
+                <img src="${imagePath}" alt="${property.titulo}" class="property-image" onerror="this.style.display='none'">
                 <div class="property-info">
                     <h3>${property.titulo}</h3>
                     <p class="property-code">Código: ${property.codigo}</p>
@@ -83,31 +83,64 @@ function displayProperties(properties) {
 
 async function createProperty(formData) {
     try {
-        console.log('Form Data:', [...formData]);
         const response = await fetch(`${API_URL}/propiedades`, {
             method: 'POST',
-            body: formData // Aquí usamos el FormData en lugar de JSON.stringify
+            body: formData // Usar formData directamente
         });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error en la solicitud');
+        }
 
         const data = await response.json();
 
         if (data.success) {
-            alert('Propiedad creada exitosamente');
-            loadProperties(); // Recarga las propiedades después de crear una nueva
+            return data;
         } else {
-            throw new Error(data.error);
+            throw new Error(data.error || 'Error al crear la propiedad');
         }
     } catch (error) {
         console.error('Error creando propiedad:', error);
-        alert('Error al crear la propiedad');
+        throw error;
     }
 }
 
-propertyForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(propertyForm); // Usamos FormData para enviar archivos
-    createProperty(formData);
-});
+async function editProperty(id) {
+    try {
+        const response = await fetch(`${API_URL}/propiedades/${id}`);
+        const data = await response.json();
+
+        if (data.success) {
+            const property = data.data;
+            
+            // Limpiar el evento submit anterior
+            propertyForm.onsubmit = null;
+
+            // Rellenar el formulario con los datos de la propiedad
+            for (const key in property) {
+                if (propertyForm.elements[key] && key !== 'imagen') {
+                    propertyForm.elements[key].value = property[key];
+                }
+            }
+
+            // Guardar la imagen actual en un campo oculto VER en HTLM <input type="hidden" name="currentImage" value="">
+            const currentImageInput = propertyForm.elements['currentImage'];
+            if (currentImageInput) {
+                currentImageInput.value = property.imagen || '';
+            }
+
+            propertyModal.style.display = 'flex';
+            propertyForm.elements['imagen'].required = false;
+
+            // Sobrescribir el evento submit para manejar la actualización
+            propertyForm.onsubmit = (e) => handlePropertyFormSubmit(e, id);
+        }
+    } catch (error) {
+        console.error('Error obteniendo propiedad:', error);
+        alert('Error al obtener la propiedad: ' + error.message);
+    }
+}
 
 async function deleteProperty(id) {
     if (confirm('¿Estás seguro de querer eliminar esta propiedad?')) {
@@ -130,7 +163,42 @@ async function deleteProperty(id) {
     }
 }
 
-// Event Listeners
+async function handlePropertyFormSubmit(e, id = null) {
+    e.preventDefault();
+    const formData = new FormData(propertyForm);
+
+    // Si no se selecciona una nueva imagen y hay una imagen actual
+    const currentImageInput = propertyForm.elements['currentImage'];
+    if (!formData.get('imagen').size && currentImageInput && currentImageInput.value) {
+        formData.set('imagen', currentImageInput.value);
+    }
+
+    try {
+        const method = id ? 'PUT' : 'POST'; // Si tengo un ID es una actualización, de lo contrario es una creación 
+        const url = id ? `${API_URL}/propiedades/${id}` : `${API_URL}/propiedades`; // Si tengo un ID uso la URL de actualización, de lo contrario la de creación
+
+        const response = await fetch(url, {
+            method: method,
+            body: formData
+        });
+
+        const data = await response.json(); // Esperar la respuesta de la API y convertirla a JSON para leerla correctamente 
+
+        if (data.success) {  // Verificar si la respuesta de la API fue exitosa
+            alert(`Propiedad ${id ? 'actualizada' : 'creada'} exitosamente`);
+            propertyForm.reset();
+            propertyModal.style.display = 'none';
+            loadProperties();
+        } else {
+            throw new Error(data.error || `Error al ${id ? 'actualizar' : 'crear'} la propiedad`);
+        }
+    } catch (error) {
+        console.error(`Error ${id ? 'actualizando' : 'creando'} propiedad:`, error);
+        alert(`Error al ${id ? 'actualizar' : 'crear'} la propiedad: ` + error.message);
+    }
+}
+
+// Event Listeners para abrir y cerrar el modal de propiedades y para enviar el formulario de filtros y el de propiedades 
 filterForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const formData = new FormData(filterForm);
@@ -138,25 +206,17 @@ filterForm.addEventListener('submit', (e) => {
     loadProperties(filters);
 });
 
-addPropertyBtn.addEventListener('click', () => {
+addPropertyBtn.addEventListener('click', () => { // Abrir el modal de propiedades al hacer click en el botón de agregar propiedad 
     propertyModal.style.display = 'flex';
+    propertyForm.reset();
+    propertyForm.elements['imagen'].required = true; // Hacer que la imagen sea obligatoria al agregar una nueva propiedad
+
+    // Cambiar el evento submit del formulario para crear una nueva propiedad
+    propertyForm.onsubmit = (e) => handlePropertyFormSubmit(e);
 });
 
 closeModal.addEventListener('click', () => {
     propertyModal.style.display = 'none';
-});
-
-propertyForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(propertyForm);
-    const propertyData = Object.fromEntries(formData.entries());
-    createProperty(propertyData);
-});
-
-window.addEventListener('click', (e) => {
-    if (e.target === propertyModal) {
-        propertyModal.style.display = 'none';
-    }
 });
 
 // Cargar propiedades al iniciar

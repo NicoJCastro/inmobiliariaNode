@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const API_URL = 'http://localhost:3000/api';
-    const destacadasContainer = document.getElementById('featuredProperties');
+    const destacadasContainer = document.getElementById('featuredProperties'); // Obtener el contenedor de propiedades destacadas
 
     // Verificar si estamos en la página correcta
     if (!destacadasContainer) {
@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function displayDestacadasPropiedades(properties) {
+    function displayDestacadasPropiedades(properties) { // Mostrar propiedades destacadas en la página web (HTML) 
         if (!Array.isArray(properties)) {
             console.error('displayDestacadasPropiedades: properties no es un array', properties);
             return;
