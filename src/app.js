@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 3000;
 const path = require('path');
 const propiedadRouter = require('./routes/propiedadesRouter');
 const clienteRouter = require('./routes/clientesRouter');
+const agentesRouter = require('./routes/agentesRouter');
 require('dotenv').config();
 
 const app = express();
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/propiedades', propiedadRouter);
 app.use('/api/clientes', clienteRouter);
+app.use('/api/agentes', agentesRouter);
 
 
 app.use((err, req, res, next) => {

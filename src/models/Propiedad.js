@@ -25,6 +25,17 @@ class Propiedad {
 
     }
 
+    // Obtener agente por Id
+
+    static getByAgente(agenteId) {
+        return new Promise((resolve, reject) => {
+            db.query('SELECT * FROM propiedades WHERE agente_id = ?', agenteId, (err, results) => {
+                if (err) reject(err);
+                resolve(results);
+            });
+        });
+    }
+
     // Crear una propiedad
 
     static create(propiedadData) {
@@ -109,6 +120,11 @@ class Propiedad {
             if (filters.images) {
                 query += ' AND images > 0';
                 valores.push(filters.images);
+            }
+
+            if (filters.agente_id) {
+                query += ' AND p.agente_id = ?';
+                valores.push(filters.agente_id);
             }
 
             db.query(query, valores, (err, results) => {
