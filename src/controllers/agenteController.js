@@ -91,6 +91,15 @@ const agenteController = {
                 message: error.message
             });
         }
+    },
+
+    getAll: async (req, res) => {
+        try {
+            const agentes = await Agente.getAll();
+            res.json({ success: true, data: agentes });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
     }
 
 

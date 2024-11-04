@@ -5,7 +5,7 @@ const { verificarToken } = require('../middleware/auth');
 
 router.post('/login', agenteController.login);
 router.post('/register', agenteController.register);
-
 router.get('/verify', verificarToken, agenteController.verify);
+router.get('/', agenteController.getAll);
 
 module.exports = router;

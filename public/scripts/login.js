@@ -67,8 +67,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
             // Guardar los permisos en localStorage
             localStorage.setItem("userPermissions", JSON.stringify(defaultPermissions));
             
-            // Redirigir a la página de propiedades
-            window.location.href = 'propiedades.html';
+            // Redirigir a la página de lista de agentes
+            window.location.href = 'agentes.html';
         } else {
             // Mostrar mensaje de error
             const messageElement = document.getElementById("loginMessage");

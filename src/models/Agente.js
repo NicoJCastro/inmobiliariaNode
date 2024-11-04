@@ -48,6 +48,15 @@ class Agente {
         });
     }
 
+    static getAll() {
+        return new Promise((resolve, reject) => {
+            db.query('SELECT id, nombre, apellido, email, telefono FROM agentes', (err, results) => {
+                if (err) reject(err);
+                resolve(results);
+            });
+        });
+    }
+
     static getById(id) {
         return new Promise((resolve, reject) => {
             db.query('SELECT id, nombre, apellido, email, telefono FROM agentes WHERE id = ?', 
