@@ -64,3 +64,66 @@ document.addEventListener('DOMContentLoaded', function() {
         }).join('');
     }
 });
+
+// Función para manejar el logout
+function handleLogout(e) {
+    e.preventDefault();
+    
+    if (confirm('¿Está seguro que desea cerrar sesión?')) {
+        // Limpiar localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('userPermissions');
+        localStorage.removeItem('agente');
+        
+        // Redirigir al login
+        window.location.href = '/public/index.html';
+    }
+}
+
+// Función para actualizar la visibilidad de los botones
+function actualizarBotonesAuth() {
+    const token = localStorage.getItem('token');
+    const loginBtn = document.querySelector('.login-btn');
+    const logoutBtn = document.querySelector('.logout-btn');
+
+    if (!loginBtn || !logoutBtn) {
+        console.error('No se encontraron los botones de login/logout');
+        return;
+    }
+
+    if (token) {
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'block';
+    } else {
+        loginBtn.style.display = 'block';
+        logoutBtn.style.display = 'none';
+    }
+}
+
+// Inicializar cuando el DOM está listo
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Cargado');
+    
+    // Agregar event listener al botón de logout
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+        console.log('Event listener de logout agregado');
+    } else {
+        console.error('No se encontró el botón de logout');
+    }
+
+    // Actualizar visibilidad de botones
+    actualizarBotonesAuth();
+});
+
+// Verificar sesión al cargar la página
+window.addEventListener('load', () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.log('No hay token, mostrando botón de login');
+    } else {
+        console.log('Token encontrado, mostrando botón de logout');
+    }
+    actualizarBotonesAuth();
+});

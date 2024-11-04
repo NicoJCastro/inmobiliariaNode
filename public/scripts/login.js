@@ -28,31 +28,44 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         });
         const data = await response.json();
 
-        if (response.ok) {
-            // Guarda el token en localStorage
-            localStorage.setItem("token", data.token);
-            
-            // Establecer permisos por defecto o usar los proporcionados por el servidor
-            const defaultPermissions = {
-                canEdit: false,
-                canDelete: false,
-                canAdd: false
-            };
+        console.log("Respuesta completa del servidor:", data);
 
-            // Si el servidor envía permisos, los combinamos con los valores por defecto
-            const userPermissions = {
-                ...defaultPermissions,
-                ...(data.permissions || {}),
-                // Si el usuario es admin, otorgar todos los permisos
-                ...(data.isAdmin ? {
-                    canEdit: true,
-                    canDelete: true,
-                    canAdd: true
-                } : {})
+        if (response.ok) {
+            // Verificar la estructura de la respuesta
+            if (data.success && data.data) {
+                // Estructura: { success: true, data: { token, agente } }
+                localStorage.setItem("token", data.data.token);
+                localStorage.setItem("agente", JSON.stringify(data.data.agente));
+            } else if (data.token && data.agente) {
+                // Estructura: { token, agente }
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("agente", JSON.stringify(data.agente));
+            } else {
+                console.error("Estructura de respuesta inesperada:", data);
+                throw new Error("Respuesta del servidor no válida");
+            }
+
+            if (localStorage.getItem("token")) {
+                console.log("Token guardado en localStorage");
+            } else {
+                console.error("No se ha recibido token");
+            }
+
+            if (localStorage.getItem("agente")) {
+                console.log("Agente guardado en localStorage");
+            } else {
+                console.error("No se ha recibido agente");
+            }
+            
+            // Establecer permisos por defecto
+            const defaultPermissions = {
+                canEdit: true,
+                canDelete: true,
+                canAdd: true
             };
 
             // Guardar los permisos en localStorage
-            localStorage.setItem("userPermissions", JSON.stringify(userPermissions));
+            localStorage.setItem("userPermissions", JSON.stringify(defaultPermissions));
             
             // Redirigir a la página de propiedades
             window.location.href = 'propiedades.html';
@@ -70,3 +83,4 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         messageElement.classList.remove('d-none');
     }
 });
+

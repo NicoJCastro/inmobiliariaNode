@@ -131,15 +131,21 @@ function displayProperties(properties) {
 }
 
 async function createProperty(formData) {
+    const token = localStorage.getItem('token');
     try {
         const response = await fetch(`${API_URL}/propiedades`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
             body: formData // Usar formData directamente
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error en la solicitud');
+            if (response.status === 401) {
+                throw new Error('Sesión expirada');
+            }
+            throw new Error('Error en la solicitud');
         }
 
         const data = await response.json();
@@ -198,15 +204,35 @@ async function editProperty(id) {
 
 async function deleteProperty(id) {
     const userPermissions = JSON.parse(localStorage.getItem('userPermissions') || '{}');
+    const token = localStorage.getItem('token');
     if (!userPermissions.canDelete) {
         alert('No tienes permisos para eliminar propiedades');
         return;
     }
+
+    if (!token) {
+        alert('No hay sesión activa. Por favor, inicie sesión nuevamente.');
+        window.location.href = 'login.html';
+        return;
+    }
+
     if (confirm('¿Estás seguro de querer eliminar esta propiedad?')) {
         try {
             const response = await fetch(`${API_URL}/propiedades/${id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
             });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
 
             const data = await response.json();
 
@@ -222,9 +248,20 @@ async function deleteProperty(id) {
     }
 }
 
+function getToken() {
+    return localStorage.getItem('token');
+}
+
 async function handlePropertyFormSubmit(e, id = null) {
     e.preventDefault();
     const formData = new FormData(propertyForm);
+    const token = getToken();
+
+    if (!token) {
+        alert('No hay un token de autenticación válido');
+        window.location.href = 'login.html';
+        return;
+    }
 
     // Si no se selecciona una nueva imagen y hay una imagen actual
     const currentImageInput = propertyForm.elements['currentImage'];
@@ -238,8 +275,21 @@ async function handlePropertyFormSubmit(e, id = null) {
 
         const response = await fetch(url, {
             method: method,
+            headers: {
+                'Authorization': `Bearer ${token}` // Enviar el token de autenticación en el encabezado de la solicitud
+            },
             body: formData
         });
+
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                alert('Sesión expirada. Por favor, inicie sesión nuevamente.');
+                window.location.href = 'login.html';
+                return;
+            }
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
 
         const data = await response.json(); // Esperar la respuesta de la API y convertirla a JSON para leerla correctamente 
 
