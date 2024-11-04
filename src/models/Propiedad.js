@@ -25,13 +25,33 @@ class Propiedad {
 
     }
 
+    // Obtener propiedad por codigo
+    static getByCodigo(codigo) {
+        return new Promise((resolve, reject) => {
+            console.log('SQL Query:', 'SELECT * FROM propiedades WHERE codigo = ?', codigo);
+            db.query('SELECT * FROM propiedades WHERE codigo = ?', codigo, (err, results) => {
+                if (err) {
+                    reject(err);
+                } else if (results.length === 0) {
+                    resolve(null);
+                } else {
+                    resolve(results[0]);
+                }
+            });
+        });
+    }
+
     // Obtener agente por Id
 
     static getByAgente(agenteId) {
         return new Promise((resolve, reject) => {
             db.query('SELECT * FROM propiedades WHERE agente_id = ?', agenteId, (err, results) => {
-                if (err) reject(err);
-                resolve(results);
+                if (err) {
+                    console.error('Error en la consulta:', err);
+                    reject(err);
+                }
+                console.log('Resultados:', results);
+                resolve(results[0] || null);
             });
         });
     }
@@ -101,6 +121,7 @@ class Propiedad {
                 query += ' AND tipo = ?';
                 valores.push(filters.tipo);
             }
+            
 
             if (filters.precioMin) {
                 query += ' AND precio >= ?';

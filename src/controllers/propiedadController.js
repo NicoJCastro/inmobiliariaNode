@@ -62,6 +62,19 @@ const propiedadController = {
         }
     },
 
+    getByCodigo: async (req, res) => {
+        try {
+            const propiedad = await Propiedad.getByCodigo(req.params.codigo);
+            if (!propiedad) {
+                return res.status(404).json({ success: false, message: 'Propiedad no encontrada' });
+            }
+            console.log('Propiedad encontrada:', propiedad);
+            res.json({ success: true, data: propiedad });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+    },
+
    
     create: async (req, res) => {
         upload(req, res, async (err) => {

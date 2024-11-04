@@ -5,6 +5,7 @@ const { verificarToken, esAgente } = require('../middleware/auth');
 
 router.get('/search', propiedadController.searchWithFilters);
 router.get('/:id', propiedadController.getById);
+router.get('/codigo/:codigo', propiedadController.getByCodigo);
 router.get('/', propiedadController.getAll);
 
 // Si es agente puede crear, modificar y eliminar propiedades. Rutas protegidas!!!

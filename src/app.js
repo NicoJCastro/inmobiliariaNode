@@ -24,6 +24,7 @@ app.get('/', (req, res) => {
 
 
 app.use('/api/propiedades', propiedadRouter);
+app.use('/api/codigo', propiedadRouter);
 app.use('/api/clientes', clienteRouter);
 app.use('/api/agentes', agentesRouter);
 
