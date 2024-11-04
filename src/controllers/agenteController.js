@@ -1,4 +1,5 @@
 const Agente = require('../models/Agente');
+
 const jwt = require('jsonwebtoken');
 
 const agenteController = {
@@ -76,7 +77,24 @@ const agenteController = {
                 message: error.message
             });
         }
+    },
+
+    verify: async (req, res) => {
+        try {
+            res.json({
+                success: true,
+                message: 'Token válido'
+            });
+        } catch (error) {
+            res.status(401).json({
+                success: false,
+                message: error.message
+            });
+        }
     }
+
+
+   
 };
 
 module.exports = agenteController;

@@ -40,6 +40,27 @@ async function loadProperties(filters = {}) {
     }
 }
 
+async function chequearPermisos(){
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return null;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/agentes/verify`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        return data.data;
+    }catch (error) {
+        console.error('Error verificando token:', error);
+        return null;
+} 
+}
+
 function displayProperties(properties) {
     if (!Array.isArray(properties)) {
         console.error('displayProperties: properties no es un array', properties);
@@ -51,13 +72,44 @@ function displayProperties(properties) {
         return;
     }
 
+    const userPermissions = JSON.parse(localStorage.getItem('userPermissions') || '{}');
+    const canEdit = userPermissions.canEdit;
+    const canDelete = userPermissions.canDelete;
+    const canAdd = userPermissions.canAdd;
+
+    // Mostrar/ocultar botón de agregar propiedad
+    const addPropertyBtn = document.getElementById('addPropertyBtn');
+    if (addPropertyBtn) {
+        addPropertyBtn.style.display = canAdd ? 'block' : 'none';
+    }
+
     propertiesGrid.innerHTML = properties.map(property => {
         console.log('property.imagen:', property.imagen); // Imprime el valor de property.imagen
 
         // Verifica si property.imagen es válido antes de usar startsWith
         const imagePath = property.imagen && property.imagen.startsWith('/images/') ? property.imagen : `/images/${property.imagen || 'default.jpg'}`;
 
-        return `
+            // Generar botones de acciones según permisos
+            const actionButtons = [];
+        
+            if (canEdit) {
+                actionButtons.push(`
+                    <button onclick="editProperty(${property.id})" class="btn btn-edit">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                `);
+            }
+            
+            if (canDelete) {
+                actionButtons.push(`
+                    <button onclick="deleteProperty(${property.id})" class="btn btn-delete">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                `);
+            }
+
+
+            return `
             <div class="property-card">
                 <img src="${imagePath}" alt="${property.titulo}" class="property-image" onerror="this.style.display='none'">
                 <div class="property-info">
@@ -67,14 +119,11 @@ function displayProperties(properties) {
                     <p class="property-address">${property.direccion}</p>
                     <p class="property-type">${property.tipo}</p>
                     <p class="property-status">${property.estado}</p>
-                    <div class="property-actions">
-                        <button onclick="editProperty(${property.id})" class="btn btn-edit">
-                            <i class="fas fa-edit"></i> Editar
-                        </button>
-                        <button onclick="deleteProperty(${property.id})" class="btn btn-delete">
-                            <i class="fas fa-trash"></i> Eliminar
-                        </button>
-                    </div>
+                    ${actionButtons.length > 0 ? `
+                        <div class="property-actions">
+                            ${actionButtons.join('')}
+                        </div>
+                    ` : ''}
                 </div>
             </div>
         `;
@@ -107,6 +156,11 @@ async function createProperty(formData) {
 }
 
 async function editProperty(id) {
+    const userPermissions = JSON.parse(localStorage.getItem('userPermissions') || '{}');
+    if (!userPermissions.canEdit) {
+        alert('No tienes permisos para editar propiedades');
+        return;
+    }
     try {
         const response = await fetch(`${API_URL}/propiedades/${id}`);
         const data = await response.json();
@@ -143,6 +197,11 @@ async function editProperty(id) {
 }
 
 async function deleteProperty(id) {
+    const userPermissions = JSON.parse(localStorage.getItem('userPermissions') || '{}');
+    if (!userPermissions.canDelete) {
+        alert('No tienes permisos para eliminar propiedades');
+        return;
+    }
     if (confirm('¿Estás seguro de querer eliminar esta propiedad?')) {
         try {
             const response = await fetch(`${API_URL}/propiedades/${id}`, {
@@ -218,6 +277,7 @@ addPropertyBtn.addEventListener('click', () => { // Abrir el modal de propiedade
 closeModal.addEventListener('click', () => {
     propertyModal.style.display = 'none';
 });
+
 
 // Cargar propiedades al iniciar
 loadProperties();
