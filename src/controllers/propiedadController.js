@@ -75,6 +75,18 @@ const propiedadController = {
         }
     },
 
+    getByAgente: async (req, res) => {
+        try {
+            const propiedad = await Propiedad.getByAgente(req.params.agenteId);
+            if (!propiedad) {
+                return res.status(404).json({ success: false, message: 'Propiedad no encontrada' });
+            }
+            res.json({ success: true, data: propiedad });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+    },
+
    
     create: async (req, res) => {
         upload(req, res, async (err) => {
@@ -82,25 +94,23 @@ const propiedadController = {
                 console.error('Error en upload:', err);
                 return res.status(400).json({ success: false, error: err.message });
             }
-
+    
             try {
-
-                const requiredFields = ['titulo', 'tipo', 'descripcion', 'precio', 'direccion'];
+                const requiredFields = ['titulo', 'tipo', 'descripcion', 'precio', 'direccion', 'agente_id'];
                 const missingFields = requiredFields.filter(field => !req.body[field]);
-
+    
                 if (missingFields.length > 0) {
                     return res.status(400).json({ 
                         success: false, 
                         error: `Faltan campos requeridos: ${missingFields.join(', ')}` 
                     });
                 }
-
-
-                const { titulo, tipo, descripcion, precio, direccion } = req.body;
+    
+                const { titulo, tipo, descripcion, precio, direccion, agente_id } = req.body; // Extraer agente_id aquí
                 const imagen = req.file ? `/images/${req.file.filename}` : null; 
-
+    
                 const codigo = generatePropertyCode();
-
+    
                 const newProperty = {
                     codigo,
                     tipo,
@@ -109,14 +119,14 @@ const propiedadController = {
                     precio: parseFloat(precio),
                     direccion,
                     imagen,
-                    estado: req.body.estado || 'disponible'
+                    estado: req.body.estado || 'disponible',
+                    agente_id // Usar agente_id aquí
                 };
-
-                
+    
                 console.log('Datos a insertar en la base de datos:', newProperty);
-
+    
                 const resultado = await Propiedad.create(newProperty);
-
+    
                 res.status(201).json({ 
                     success: true, 
                     message: 'Propiedad creada exitosamente',

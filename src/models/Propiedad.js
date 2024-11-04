@@ -41,17 +41,13 @@ class Propiedad {
         });
     }
 
-    // Obtener agente por Id
+     // Obtener propiedades por agente
 
     static getByAgente(agenteId) {
         return new Promise((resolve, reject) => {
             db.query('SELECT * FROM propiedades WHERE agente_id = ?', agenteId, (err, results) => {
-                if (err) {
-                    console.error('Error en la consulta:', err);
-                    reject(err);
-                }
-                console.log('Resultados:', results);
-                resolve(results[0] || null);
+                if (err) reject(err);
+                resolve(results);
             });
         });
     }

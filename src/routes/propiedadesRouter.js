@@ -7,6 +7,7 @@ router.get('/search', propiedadController.searchWithFilters);
 router.get('/:id', propiedadController.getById);
 router.get('/codigo/:codigo', propiedadController.getByCodigo);
 router.get('/', propiedadController.getAll);
+router.get('/agente/:agenteId', propiedadController.getByAgente);
 
 // Si es agente puede crear, modificar y eliminar propiedades. Rutas protegidas!!!
 router.post('/',[verificarToken, esAgente], propiedadController.create);

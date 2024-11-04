@@ -38,6 +38,10 @@
                     <option value="reservado">Reservado</option>
                     <option value="vendido">Vendido</option>
                 </select>
+                <select name="agente_id" id="agente_id">
+                    <option value="">Seleccione un agente</option>
+                    <!-- Aquí se cargarán dinámicamente los agentes -->
+                </select>
                 <button type="submit" class="btn">Buscar</button>
             </form>
         </section>
@@ -68,6 +72,10 @@
                     <option value="disponible">Disponible</option>
                     <option value="reservado">Reservado</option>
                     <option value="vendido">Vendido/Alquilado</option>
+                </select>
+                <select name="agente_id" required>
+                    <option value="">Seleccione un agente</option>
+                    <!-- Aquí se cargarán dinámicamente los agentes -->
                 </select>
                 <input type="file" name="imagen" accept="image/*" required>
                 <input type="hidden" name="currentImage" value="">
@@ -105,6 +113,7 @@
     </footer>
 
     <script src="/public/scripts/propiedades.js"></script>
+    <script src="/public/scripts/agentes.js"></script>
     
 
 </body>

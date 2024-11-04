@@ -1,16 +1,22 @@
-const API_URL = 'http://localhost:3000/api/agentes';
+const AGENTES_API_URL = 'http://localhost:3000/api/agentes';
 
 // DOM
 const agentesGrid = document.getElementById('agentesGrid');
+const agenteSelect = document.querySelector('select[name="agente_id"]');
 
 // Funciones necesarias
 async function getAgentes() {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(AGENTES_API_URL);
         const data = await response.json();
 
         if (data.success) {
-            displayAgentes(data.data);
+            if (agentesGrid) {
+                displayAgentes(data.data);
+            }
+            if (agenteSelect) {
+                populateAgenteSelect(data.data);
+            }
             console.log('Agentes obtenidos:', data.data);
         } else {
             console.error('Error al obtener agentes:', data.error);
@@ -18,6 +24,22 @@ async function getAgentes() {
     } catch (error) {
         console.error('Error al obtener agentes:', error);
     }
+}
+
+// Función para poblar el select de agentes
+function populateAgenteSelect(agentes) {
+    if (!agenteSelect) return; // Si no existe el select, salir
+
+    // Limpiar opciones existentes
+    agenteSelect.innerHTML = '<option value="">Seleccione un agente</option>';
+
+    // Agregar cada agente como una opción
+    agentes.forEach(agente => {
+        const option = document.createElement('option');
+        option.value = agente.id;
+        option.textContent = `${agente.nombre} ${agente.apellido}`;
+        agenteSelect.appendChild(option);
+    });
 }
 
 function displayAgentes(agentes) {
@@ -41,5 +63,13 @@ function displayAgentes(agentes) {
     `).join('');
 }
 
-// Llamar a getAgentes al cargar la página
-document.addEventListener('DOMContentLoaded', getAgentes);
+// Llamar a getAgentes cuando se abra el modal
+document.addEventListener('DOMContentLoaded', () => {
+    const addPropertyBtn = document.getElementById('addPropertyBtn');
+    if (addPropertyBtn) {
+        addPropertyBtn.addEventListener('click', getAgentes);
+    }
+    
+    // También podrías cargar los agentes al inicio si lo deseas
+    getAgentes();
+});
