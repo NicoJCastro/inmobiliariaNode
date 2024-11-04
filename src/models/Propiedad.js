@@ -140,7 +140,7 @@ class Propiedad {
             }
 
             if (filters.agente_id) {
-                query += ' AND p.agente_id = ?';
+                query += ' AND agente_id = ?';
                 valores.push(filters.agente_id);
             }
 
