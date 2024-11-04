@@ -26,6 +26,7 @@ class Agente {
         });
     }
 
+    // Seria el create
     static async register(agenteData) {
         return new Promise(async (resolve, reject) => {
             try {
@@ -34,7 +35,7 @@ class Agente {
                 const hashedPassword = await bcrypt.hash(agenteData.password, salt);
 
                 const newAgente = {
-                    ...agenteData,
+                    ...agenteData, // los ... son para copiar todas las propiedades de agenteData en newAgente
                     password: hashedPassword
                 };
 
@@ -67,6 +68,35 @@ class Agente {
                 });
         });
     }
+
+    static update(id, agenteData) {
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (agenteData.password) {
+                    // Encriptar la nueva contraseña si se proporciona
+                    const salt = await bcrypt.genSalt(10);
+                    agenteData.password = await bcrypt.hash(agenteData.password, salt);
+                }
+
+                db.query('UPDATE agentes SET ? WHERE id = ?', [agenteData, id], (err, result) => {
+                    if (err) reject(err);
+                    resolve(result);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    static delete(id) {
+        return new Promise((resolve, reject) => {
+            db.query('DELETE FROM agentes WHERE id = ?', [id], (err, result) => {
+                if (err) reject(err);
+                resolve(result);
+            });
+        });
+    }
+
 }
 
 module.exports = Agente;

@@ -100,9 +100,64 @@ const agenteController = {
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }
+    },
+
+    getById: async (req, res) => {
+        try {
+            const agente = await Agente.getById(req.params.id);
+            if (!agente) {
+                return res.status(404).json({ success: false, message: 'Agente no encontrado' });
+            }
+            res.json({ success: true, data: agente });
+        } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+        }
+    },
+
+    update: async (req, res) => {
+        try {
+            const { nombre, apellido, email, password, telefono } = req.body;
+    
+            // Validaciones
+            if (!nombre || !apellido || !email) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Nombre, apellido y email son obligatorios'
+                });
+            }
+    
+            const agenteData = { nombre, apellido, email, telefono };
+            if (password) {
+                agenteData.password = password; // Solo actualizar la contraseña si se proporciona
+            }
+    
+            const resultado = await Agente.update(req.params.id, agenteData);
+    
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({ success: false, message: 'Agente no encontrado' });
+            }
+
+            const agenteActualizado = await Agente.getById(req.params.id);
+    
+            res.json({ success: true, message: 'Agente actualizado exitosamente',   data: agenteActualizado  });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    delete: async (req, res) => {
+        try {
+            const resultado = await Agente.delete(req.params.id);
+    
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({ success: false, message: 'Agente no encontrado' });
+            }
+    
+            res.json({ success: true, message: 'Agente eliminado exitosamente' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
     }
-
-
    
 };
 
