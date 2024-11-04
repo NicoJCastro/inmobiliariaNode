@@ -50,6 +50,17 @@ class Cliente {
                 });
             });
         }
+
+        // Eliminar un cliente
+
+        static delete(id) {
+            return new Promise((resolve, reject) => {
+                db.query('DELETE FROM clientes WHERE id = ?', id, (err, result) => {
+                    if (err) reject(err);
+                    resolve(result);
+                });
+            });
+        }
 }
 
 module.exports = Cliente;
