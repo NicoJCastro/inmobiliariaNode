@@ -1,3 +1,5 @@
+const AGENTES_API_URL = '/api/agentes';
+
 document.getElementById('togglePassword').addEventListener('click', function() {
     const passwordInput = document.getElementById('password');
     const icon = this.querySelector('i');
@@ -32,14 +34,16 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
         if (response.ok) {
             // Verificar la estructura de la respuesta
-            if (data.success && data.data) {
-                // Estructura: { success: true, data: { token, agente } }
+            if (data.success && data.data) {                
                 localStorage.setItem("token", data.data.token);
                 localStorage.setItem("agente", JSON.stringify(data.data.agente));
+                const isAdmin = data.data.agente && (data.data.agente.nombre === 'admin' || data.data.agente.email === 'admin@ejemplo.com');
+                localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
             } else if (data.token && data.agente) {
-                // Estructura: { token, agente }
                 localStorage.setItem("token", data.token);
                 localStorage.setItem("agente", JSON.stringify(data.agente));
+                const isAdmin = data.agente && (data.agente.nombre === 'admin' || data.agente.email === 'admin@ejemplo.com');
+                localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
             } else {
                 console.error("Estructura de respuesta inesperada:", data);
                 throw new Error("Respuesta del servidor no válida");
@@ -84,3 +88,39 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     }
 });
 
+document.getElementById('showRegisterForm').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+});
+
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('registerNombre').value;
+    const apellido = document.getElementById('registerApellido').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const telefono = document.getElementById('registerTelefono').value;
+
+    try {
+        const response = await fetch(`${AGENTES_API_URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ nombre, apellido, email, password, telefono })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Registro exitoso. Por favor, inicia sesión.');
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        } else {
+            throw new Error(data.error || 'Error en el registro');
+        }
+    } catch (error) {
+        console.error('Error en el registro:', error);
+        alert('Error en el registro: ' + error.message);
+    }
+});

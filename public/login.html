@@ -85,8 +85,35 @@
         </div>
     </div>
 
+    <p class="container mt-5  justify-content-center text-center">¿No tienes una cuenta? <a href="#" id="showRegisterForm">Regístrate aquí</a></p>
+
+<!-- Aca esta el formularo para el registro -->
+<form id="registerForm" style="display: none;" class="container mt-5">
+    <div class="mb-3">
+        <label for="registerNombre" class="form-label">Nombre</label>
+        <input type="text" id="registerNombre" class="form-control" placeholder="Nombre" required>
+    </div>
+    <div class="mb-3">
+        <label for="registerApellido" class="form-label">Apellido</label>
+        <input type="text" id="registerApellido" class="form-control" placeholder="Apellido" required>
+    </div>
+    <div class="mb-3">
+        <label for="registerEmail" class="form-label">Email</label>
+        <input type="email" id="registerEmail" class="form-control" placeholder="Email" required>
+    </div>
+    <div class="mb-3">
+        <label for="registerPassword" class="form-label">Contraseña</label>
+        <input type="password" id="registerPassword" class="form-control" placeholder="Contraseña" required>
+    </div>
+    <div class="mb-3">
+        <label for="registerTelefono" class="form-label">Teléfono</label>
+        <input type="tel" id="registerTelefono" class="form-control" placeholder="Teléfono">
+    </div>
+    <button type="submit" class="btn btn-primary">Registrarse</button>
+</form>
+
     <!-- Footer -->
-    <footer class="bg-dark text-white py-4">
+    <footer class="bg-dark mt-5 text-white py-4">
         <div class="container">
             <div class="row g-4">
                 <div class="col-md-4">
