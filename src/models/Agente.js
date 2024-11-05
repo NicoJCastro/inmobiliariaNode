@@ -33,15 +33,21 @@ class Agente {
                 // Encriptar la contraseña
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(agenteData.password, salt);
-
+    
                 const newAgente = {
-                    ...agenteData, // los ... son para copiar todas las propiedades de agenteData en newAgente
+                    ...agenteData,
                     password: hashedPassword
                 };
-
+    
                 db.query('INSERT INTO agentes SET ?', newAgente, (err, result) => {
-                    if (err) reject(err);
-                    resolve(result);
+                    if (err) return reject(err);
+    
+                    // Obtener el agente recién insertado
+                    const insertId = result.insertId;
+                    db.query('SELECT * FROM agentes WHERE id = ?', [insertId], (err, rows) => {
+                        if (err) return reject(err);
+                        resolve(rows[0]); // Devolver el primer (y único) resultado
+                    });
                 });
             } catch (error) {
                 reject(error);

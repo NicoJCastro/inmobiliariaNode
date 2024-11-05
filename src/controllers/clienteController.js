@@ -69,8 +69,15 @@ const clietnteController = {
     // Actualizar un cliente
     update: async (req, res) => {
         try {
-            const result = await Cliente.update(req.params.id, req.body);
-            res.json({ success: true, data: result });
+            const cliente = await Cliente.getById(req.params.id);
+            if (!cliente) {
+                return res.status(404).json({ success: false, error: 'Cliente no encontrado' });
+            }
+
+            await Cliente.update(req.params.id, req.body);
+
+            res.json({ success: true, message: "Cliente editado exitosamente" , data: cliente });
+
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }

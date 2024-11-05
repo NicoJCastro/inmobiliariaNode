@@ -69,7 +69,7 @@ const agenteController = {
             res.status(201).json({
                 success: true,
                 message: 'Agente registrado exitosamente',
-                data: { id: resultado.insertId }
+                data: resultado
             });
         } catch (error) {
             res.status(500).json({
@@ -147,13 +147,15 @@ const agenteController = {
 
     delete: async (req, res) => {
         try {
-            const resultado = await Agente.delete(req.params.id);
-    
-            if (resultado.affectedRows === 0) {
+            const agente = await Agente.getById(req.params.id);
+
+            if (!agente) {
                 return res.status(404).json({ success: false, message: 'Agente no encontrado' });
             }
+
+            await Agente.delete(req.params.id); 
     
-            res.json({ success: true, message: 'Agente eliminado exitosamente' });
+            res.json({ success: true, message: 'Agente eliminado exitosamente', data: agente });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }

@@ -89,7 +89,7 @@ const propiedadController = {
 
    
     create: async (req, res) => {
-        upload(req, res, async (err) => {
+        upload(req, res, async (err) => { // upload es el middleware de multer para subir archivos al servidor en este caso para la imagenes
             if (err) {
                 console.error('Error en upload:', err);
                 return res.status(400).json({ success: false, error: err.message });
