@@ -2,9 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const PORT = process.env.PORT || 3000;
 const path = require('path');
-const propiedadRouter = require('./routes/propiedadesRouter');
-const clienteRouter = require('./routes/clientesRouter');
-const agentesRouter = require('./routes/agentesRouter');
+const propiedadRuta = require('./routes/propiedadesRuta');
+const clienteRuta = require('./routes/clientesRuta');
+const agentesRuta = require('./routes/agentesRuta');
 require('dotenv').config();
 
 const app = express();
@@ -23,9 +23,9 @@ app.get('/', (req, res) => {
 });
 
 
-app.use('/api/propiedades', propiedadRouter);
-app.use('/api/clientes', clienteRouter);
-app.use('/api/agentes', agentesRouter);
+app.use('/api/propiedades', propiedadRuta);
+app.use('/api/clientes', clienteRuta);
+app.use('/api/agentes', agentesRuta);
 
 
 app.use((err, req, res, next) => {
