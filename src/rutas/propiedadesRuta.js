@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const propiedadControlador = require('../controllers/propiedadControlador');
+const propiedadControlador = require('../controladores/propiedadControlador');
 const fileImageUpload = require('../middleware/fileImageUpload');
 const { verificarToken, esAgente } = require('../middleware/auth'); 
 

@@ -1,4 +1,4 @@
-const Agente = require('../models/Agente');
+const Agente = require('../modelos/Agente');
 
 const jwt = require('jsonwebtoken');
 

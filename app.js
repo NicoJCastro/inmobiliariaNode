@@ -2,9 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const PORT = process.env.PORT || 3000;
 const path = require('path');
-const propiedadRuta = require('./routes/propiedadesRuta');
-const clienteRuta = require('./routes/clientesRuta');
-const agentesRuta = require('./routes/agentesRuta');
+const propiedadRuta = require('./src/rutas/propiedadesRuta');
+const clienteRuta = require('./src/rutas/clientesRuta');
+const agentesRuta = require('./src/rutas/agentesRuta');
 require('dotenv').config();
 
 const app = express();
@@ -15,8 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.use('/images', express.static(path.join(__dirname, '../public/images')));
-app.use('/public', express.static(path.join(__dirname, '../public')));
+app.use('/images', express.static(path.join(__dirname, '/public/images')));
+app.use('/public', express.static(path.join(__dirname, '/public')));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));

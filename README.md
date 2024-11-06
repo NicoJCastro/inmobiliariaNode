@@ -27,7 +27,8 @@ inmobiliaria-api/
 │   │   └── db.js
 │   ├── utils/            👈 Funciones auxiliares
 │   │   └── helpers.js
-│   └── app.js            👈 Configura Express, conecta middlewares y rutas
+│   
+└── app.js            👈 Configura Express, conecta middlewares y rutas
 ├── .env                  👈 Variables de entorno para información sensible
 ├── .gitignore            👈 Archivos y carpetas que no se deben subir al control de versiones
 └── package.json

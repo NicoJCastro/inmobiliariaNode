@@ -1,4 +1,4 @@
-const Cliente = require('../models/Cliente');
+const Cliente = require('../modelos/Cliente');
 const multer = require('multer');
 const path = require('path');
 

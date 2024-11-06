@@ -1,4 +1,4 @@
-const Propiedad = require('../models/Propiedad');
+const Propiedad = require('../modelos/Propiedad');
 const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
@@ -96,7 +96,10 @@ const propiedadController = {
             res.status(201).json({ 
                 success: true, 
                 message: 'Propiedad creada exitosamente',
-                data: { id: resultado.insertId, ...newProperty, imagenes }
+                data: { id: resultado.insertId,
+                     ...newProperty,
+                      imagenes 
+                    }
             });
         } catch (error) {
             console.error('Error en create:', error);

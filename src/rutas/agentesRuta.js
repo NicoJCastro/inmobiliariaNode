@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const agenteControlador = require('../controllers/agenteControlador');
+const agenteControlador = require('../controladores/agenteControlador');
 const { verificarToken } = require('../middleware/auth');
 
 router.post('/login', agenteControlador.login);
