@@ -1,38 +1,8 @@
 const Propiedad = require('../models/Propiedad');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { promisify } = require('util');
 const unlinkAsync = promisify(fs.unlink);
-
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/images');        
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname)); 
-    }
-});
-
-const fileFilter = (req, file, cb) => {
-    const fileType = /jpeg|jpg|png|gif/;
-    const extname = fileType.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = fileType.test(file.mimetype);
-
-    if (extname && mimetype) {
-        return cb(null, true);
-    } else {
-        cb(new Errors("Solo se permiten imagenes en formato jpeg, jpg o png"));
-    }
-};
-
-const upload = multer({
-    storage: storage,
-    fileFilter: fileFilter,
-    limits: { fileSize: 1024 * 1024 * 5 } 
-}).single('imagen');
 
 function generatePropertyCode() {
     const prefix = 'PROP';
@@ -89,119 +59,114 @@ const propiedadController = {
 
    
     create: async (req, res) => {
-        upload(req, res, async (err) => { // upload es el middleware de multer para subir archivos al servidor en este caso para la imagenes
-            if (err) {
-                console.error('Error en upload:', err);
-                return res.status(400).json({ success: false, error: err.message });
-            }
-    
-            try {
-                const requiredFields = ['titulo', 'tipo', 'descripcion', 'precio', 'direccion', 'agente_id'];
-                const missingFields = requiredFields.filter(field => !req.body[field]);
-    
-                if (missingFields.length > 0) {
-                    return res.status(400).json({ 
-                        success: false, 
-                        error: `Faltan campos requeridos: ${missingFields.join(', ')}` 
-                    });
-                }
-    
-                const { titulo, tipo, descripcion, precio, direccion, agente_id } = req.body; // Extraer agente_id aquí
-                const imagen = req.file ? `/images/${req.file.filename}` : null; 
-    
-                const codigo = generatePropertyCode();
-    
-                const newProperty = {
-                    codigo,
-                    tipo,
-                    titulo,
-                    descripcion,
-                    precio: parseFloat(precio),
-                    direccion,
-                    imagen,
-                    estado: req.body.estado || 'disponible',
-                    agente_id // Usar agente_id aquí
-                };
-    
-                console.log('Datos a insertar en la base de datos:', newProperty);
-    
-                const resultado = await Propiedad.create(newProperty);
-    
-                res.status(201).json({ 
-                    success: true, 
-                    message: 'Propiedad creada exitosamente',
-                    data: { id: resultado.insertId, ...newProperty }
+        try {
+            const requiredFields = ['titulo', 'tipo', 'descripcion', 'precio', 'direccion', 'agente_id'];
+            const missingFields = requiredFields.filter(field => !req.body[field]);
+
+            if (missingFields.length > 0) {
+                return res.status(400).json({ 
+                    success: false, 
+                    error: `Faltan campos requeridos: ${missingFields.join(', ')}` 
                 });
-            } catch (error) {
-                console.error('Error en create:', error);
-                res.status(500).json({ success: false, error: error.message || 'Error al crear la propiedad' });
             }
-        });
+
+            const { titulo, tipo, descripcion, precio, direccion, agente_id } = req.body;
+            
+            // Manejar múltiples imágenes
+            const imagenes = req.files ? req.files.map(file => `/images/${file.filename}`) : [];
+
+            const codigo = generatePropertyCode();
+
+            const newProperty = {
+                codigo,
+                tipo,
+                titulo,
+                descripcion,
+                precio: parseFloat(precio),
+                direccion,
+                imagenes: JSON.stringify(imagenes), // Guardar como JSON string
+                estado: req.body.estado || 'disponible',
+                agente_id
+            };
+
+            console.log('Datos a insertar en la base de datos:', newProperty);
+
+            const resultado = await Propiedad.create(newProperty);
+
+            res.status(201).json({ 
+                success: true, 
+                message: 'Propiedad creada exitosamente',
+                data: { id: resultado.insertId, ...newProperty, imagenes }
+            });
+        } catch (error) {
+            console.error('Error en create:', error);
+            res.status(500).json({ 
+                success: false, 
+                error: error.message || 'Error al crear la propiedad' 
+            });
+        }
     },
 
-   
     update: async (req, res) => {
-        upload(req, res, async (err) => {
-            if (err) {
-                return res.status(400).json({ success: false, error: err.message });
-            }
-    
-            try {
-                // Obtener la propiedad actual
-                const propiedadActual = await Propiedad.getById(req.params.id);
-                if (!propiedadActual) {
-                    return res.status(404).json({ success: false, message: 'Propiedad no encontrada' });
-                }
-    
-                // Preparar los datos actualizados
-                const datosActualizados = {
-                    titulo: req.body.titulo,
-                    tipo: req.body.tipo,
-                    descripcion: req.body.descripcion,
-                    precio: parseFloat(req.body.precio),
-                    direccion: req.body.direccion,
-                    estado: req.body.estado
-                };
-    
-                // Manejar la imagen
-                if (req.file) {
-                    // Si hay una nueva imagen
-                    datosActualizados.imagen = `/images/${req.file.filename}`;
-                    
-                    // Eliminar la imagen anterior si existe
-                    if (propiedadActual.imagen) {
-                        try {
-                            const imagePath = path.join(process.cwd(), 'public', propiedadActual.imagen);
-                            if (fs.existsSync(imagePath)) {
-                                await unlinkAsync(imagePath);
-                            }
-                        } catch (unlinkError) {
-                            console.error('Error al eliminar la imagen anterior:', unlinkError);
-                        }
-                    }
-                } else if (req.body.imagen && req.body.imagen.startsWith('/images/')) {
-                    // Mantener la imagen actual si no se sube una nueva
-                    datosActualizados.imagen = req.body.imagen;
-                }
-    
-                console.log('Datos actualizados:', datosActualizados);
-    
-                const resultado = await Propiedad.update(req.params.id, datosActualizados);
-                
-                if (resultado.affectedRows === 0) {
-                    return res.status(404).json({ success: false, message: 'Propiedad no encontrada' });
-                }
-    
-                res.json({ 
-                    success: true, 
-                    message: 'Propiedad actualizada exitosamente',
-                    data: { id: req.params.id, ...datosActualizados }
+        try {
+            const propiedadActual = await Propiedad.getById(req.params.id);
+            if (!propiedadActual) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Propiedad no encontrada' 
                 });
-            } catch (error) {
-                console.error('Error en update:', error);
-                res.status(500).json({ success: false, error: error.message });
             }
-        });
+
+            const datosActualizados = {
+                titulo: req.body.titulo,
+                tipo: req.body.tipo,
+                descripcion: req.body.descripcion,
+                precio: parseFloat(req.body.precio),
+                direccion: req.body.direccion,
+                estado: req.body.estado
+            };
+
+            // Manejar las imágenes
+            if (req.files && req.files.length > 0) {
+                const nuevasImagenes = req.files.map(file => `/images/${file.filename}`);
+                datosActualizados.imagenes = JSON.stringify(nuevasImagenes);
+
+                // Eliminar imágenes anteriores
+                const imagenesAnteriores = JSON.parse(propiedadActual.imagenes || '[]');
+                for (const imagenAnterior of imagenesAnteriores) {
+                    try {
+                        const imagePath = path.join(process.cwd(), 'public', imagenAnterior);
+                        if (fs.existsSync(imagePath)) {
+                            await unlinkAsync(imagePath);
+                        }
+                    } catch (unlinkError) {
+                        console.error('Error al eliminar imagen anterior:', unlinkError);
+                    }
+                }
+            }
+
+            const resultado = await Propiedad.update(req.params.id, datosActualizados);
+            
+            if (resultado.affectedRows === 0) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Propiedad no encontrada' 
+                });
+            }
+
+            res.json({ 
+                success: true, 
+                message: 'Propiedad actualizada exitosamente',
+                data: { 
+                    id: req.params.id, 
+                    ...datosActualizados, 
+                    imagenes: JSON.parse(datosActualizados.imagenes || '[]')
+                }
+            });
+        } catch (error) {
+            console.error('Error en update:', error);
+            res.status(500).json({ success: false, error: error.message });
+        }
     },
 
    

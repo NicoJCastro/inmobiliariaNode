@@ -8,6 +8,16 @@ class Propiedad {
         return new Promise((resolve, reject) => {
             db.query('SELECT * FROM propiedades', (err, results) => {
                 if (err) reject(err);
+                // Parsear las imágenes para cada propiedad
+                results.forEach(propiedad => {
+                    if (propiedad.imagenes) {
+                        try {
+                            propiedad.imagenes = JSON.parse(propiedad.imagenes);
+                        } catch (e) {
+                            propiedad.imagenes = [];
+                        }
+                    }
+                });
                 resolve(results);
             });
         });
@@ -19,10 +29,16 @@ class Propiedad {
         return new Promise((resolve, reject) => {
             db.query('SELECT * FROM propiedades WHERE id = ?', id, (err, results) => {
                 if (err) reject(err);
+                if (results[0] && results[0].imagenes) {
+                    try {
+                        results[0].imagenes = JSON.parse(results[0].imagenes);
+                    } catch (e) {
+                        results[0].imagenes = [];
+                    }
+                }
                 resolve(results[0]);
             });
         });
-
     }
 
     // Obtener propiedad por codigo
@@ -35,6 +51,13 @@ class Propiedad {
                 } else if (results.length === 0) {
                     resolve(null);
                 } else {
+                    if (results[0].imagenes) {
+                        try {
+                            results[0].imagenes = JSON.parse(results[0].imagenes);
+                        } catch (e) {
+                            results[0].imagenes = [];
+                        }
+                    }
                     resolve(results[0]);
                 }
             });
@@ -43,10 +66,20 @@ class Propiedad {
 
      // Obtener propiedades por agente
 
-    static getByAgente(agenteId) {
+     static getByAgente(agenteId) {
         return new Promise((resolve, reject) => {
             db.query('SELECT * FROM propiedades WHERE agente_id = ?', agenteId, (err, results) => {
                 if (err) reject(err);
+                // Parsear las imágenes para cada propiedad
+                results.forEach(propiedad => {
+                    if (propiedad.imagenes) {
+                        try {
+                            propiedad.imagenes = JSON.parse(propiedad.imagenes);
+                        } catch (e) {
+                            propiedad.imagenes = [];
+                        }
+                    }
+                });
                 resolve(results);
             });
         });
@@ -56,9 +89,14 @@ class Propiedad {
 
     static create(propiedadData) {
         return new Promise((resolve, reject) => {
+            // Asegurarse de que las imágenes se guarden como JSON string
+            if (propiedadData.imagenes && Array.isArray(propiedadData.imagenes)) {
+                propiedadData.imagenes = JSON.stringify(propiedadData.imagenes);
+            }
+            
             db.query('INSERT INTO propiedades SET ?', propiedadData, (err, result) => {
                 if (err) {
-                    console.error('Error en la consulta de inserción:', err); 
+                    console.error('Error en la consulta de inserción:', err);
                     reject(err);
                 } else {
                     resolve(result);
@@ -74,18 +112,27 @@ class Propiedad {
             if (Object.keys(propiedadData).length === 0) {
                 return reject(new Error('No hay datos para actualizar'));
             }
-    
+
             // Verificar que propiedadData no esté vacío
-            const fieldsToUpdate = Object.keys(propiedadData).filter(key => propiedadData[key] !== undefined && propiedadData[key] !== null);
+            const fieldsToUpdate = Object.keys(propiedadData).filter(key => 
+                propiedadData[key] !== undefined && propiedadData[key] !== null
+            );
+            
             if (fieldsToUpdate.length === 0) {
                 return reject(new Error('No hay datos válidos para actualizar'));
             }
-    
+
+            // Convertir el array de imágenes a JSON string si existe
+            if (propiedadData.imagenes && Array.isArray(propiedadData.imagenes)) {
+                propiedadData.imagenes = JSON.stringify(propiedadData.imagenes);
+            }
+
             const query = 'UPDATE propiedades SET ? WHERE id = ?';
-            console.log('SQL Query:', query, [propiedadData, id]); // Agregar esta línea para depuración
+            console.log('SQL Query:', query, [propiedadData, id]);
+            
             db.query(query, [propiedadData, id], (err, result) => {
                 if (err) {
-                    console.error('Error en la consulta de actualización:', err); // Agregar esta línea para depuración
+                    console.error('Error en la consulta de actualización:', err);
                     reject(err);
                 } else {
                     resolve(result);

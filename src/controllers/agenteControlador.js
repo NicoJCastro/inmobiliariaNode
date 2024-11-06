@@ -17,8 +17,7 @@ const agenteController = {
             const agente = await Agente.login(email, password);
 
             // Generar token JWT
-            const token = jwt.sign(
-                { 
+            const token = jwt.sign({ 
                     id: agente.id, 
                     email: agente.email,
                     rol: 'agente'

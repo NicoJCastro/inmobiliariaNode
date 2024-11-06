@@ -95,3 +95,9 @@ Reinicia automáticamente el servidor cuando detecta cambios en el código
 Solo se usa durante el desarrollo
 Por eso se instala con --save-dev
 Ejecutar npm run dev
+
+### Imagenes
+
+Ver de separar el manejo de las imagene con una ruta que asocie el id de la propieda con la imagen
+
+/:id/imagen, metodo
