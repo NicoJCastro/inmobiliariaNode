@@ -60,9 +60,10 @@ const propiedadController = {
    
     create: async (req, res) => {
         try {
+            // Verifica que todos los campos requeridos estén en `req.body`
             const requiredFields = ['titulo', 'tipo', 'descripcion', 'precio', 'direccion', 'agente_id'];
             const missingFields = requiredFields.filter(field => !req.body[field]);
-    
+            
             if (missingFields.length > 0) {
                 return res.status(400).json({ 
                     success: false, 
@@ -71,20 +72,20 @@ const propiedadController = {
             }
     
             const { titulo, tipo, descripcion, precio, direccion, agente_id } = req.body;
-
-            console.log("Archivo recibido",req.files);
             
-            // Manejo de imágenes
+            // Como manejo las imagenes en la tabla propeidades. Colocamos la primera como principal y las demas como secundarias.
+            let imagenPrincipal = null;
             let imagenes = [];
             if (req.files && req.files.length > 0) {
-                imagenes = req.files.map(file => `/images/${file.filename}`);
-            } else if (req.body.imagen) {
-                imagenes = Array.isArray(req.body.imagen) ? req.body.imagen : [req.body.imagen];
+                imagenPrincipal = `/images/${req.files[0].filename}`;
+
+                if (req.files.length > 1) {
+                imagenes = req.files.slice(1).map(file => `/images/${file.filename}`);
+                }
             }
-            console.log("RUtas de las imagenes",imagenes);
-    
+            
             const codigo = generatePropertyCode();
-    
+            
             const newProperty = {
                 codigo,
                 tipo,
@@ -92,15 +93,15 @@ const propiedadController = {
                 descripcion,
                 precio: parseFloat(precio),
                 direccion,
-                imagen: imagenes,  
+                imagen: imagenPrincipal,
+                imagenes: JSON.stringify(imagenes),  // Guardar como JSON es un array de direcciones de imágenes
                 estado: req.body.estado || 'disponible',
                 agente_id
             };
-    
-            console.log('Datos a insertar en la base de datos:', newProperty);
-    
+            
+            // Guardar en la base de datos
             const resultado = await Propiedad.create(newProperty);
-    
+            
             res.status(201).json({ 
                 success: true, 
                 message: 'Propiedad creada exitosamente',
@@ -129,7 +130,6 @@ const propiedadController = {
                 });
             }
     
-            // Definir los datos actualizados a partir de los datos recibidos en `req.body`
             const datosActualizados = {
                 titulo: req.body.titulo,
                 tipo: req.body.tipo,
@@ -141,25 +141,45 @@ const propiedadController = {
     
             // Manejar las nuevas imágenes si se han subido
             if (req.files && req.files.length > 0) {
-                
-                const nuevasImagenes = req.files.map(file => `/images/${file.filename}`);
-                datosActualizados.imagenes = JSON.stringify(nuevasImagenes);
+                // Imagen principal
+                datosActualizados.imagen = `/images/${req.files[0].filename}`;
     
-                
+                // Las secundarias se guardan como un array de strings
+                if (req.files.length > 1) {
+                    datosActualizados.imagenes = JSON.stringify(
+                        req.files.slice(1).map(file => `/images/${file.filename}`)
+                    );
+                } else {
+                    datosActualizados.imagenes = JSON.stringify([]);
+                }
+    
+                // Elimina las imágenes anteriores para que no se repitan en el servidor
                 const imagenesAnteriores = JSON.parse(propiedadActual.imagenes || '[]');
                 for (const imagenAnterior of imagenesAnteriores) {
                     try {
                         const imagePath = path.join(process.cwd(), 'public', imagenAnterior);
                         if (fs.existsSync(imagePath)) {
-                            await unlinkAsync(imagePath); // Eliminar el archivo
+                            await unlinkAsync(imagePath);
                         }
                     } catch (unlinkError) {
                         console.error('Error al eliminar imagen anterior:', unlinkError);
                     }
                 }
+    
+                // Eliminar la imagen principal anterior si también fue reemplazada
+                if (propiedadActual.imagen && propiedadActual.imagen !== datosActualizados.imagen) {
+                    try {
+                        const principalImagePath = path.join(process.cwd(), 'public', propiedadActual.imagen);
+                        if (fs.existsSync(principalImagePath)) {
+                            await unlinkAsync(principalImagePath);
+                        }
+                    } catch (unlinkError) {
+                        console.error('Error al eliminar la imagen principal anterior:', unlinkError);
+                    }
+                }
             }
     
-       
+            // Actualizar en la base de datos
             const resultado = await Propiedad.update(req.params.id, datosActualizados);
             
             if (resultado.affectedRows === 0) {
@@ -169,7 +189,6 @@ const propiedadController = {
                 });
             }
     
-            
             res.json({ 
                 success: true, 
                 message: 'Propiedad actualizada exitosamente',
