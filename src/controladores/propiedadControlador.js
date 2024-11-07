@@ -92,7 +92,7 @@ const propiedadController = {
                 descripcion,
                 precio: parseFloat(precio),
                 direccion,
-                imagen: JSON.stringify(imagenes),  // Guardar las rutas como JSON string
+                imagen: imagenes,  
                 estado: req.body.estado || 'disponible',
                 agente_id
             };

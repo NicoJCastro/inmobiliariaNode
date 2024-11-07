@@ -10,9 +10,21 @@ const closeModal = document.querySelector('.close-modal');
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProperties();
+
+    //Evento de click en agregar propiedad y se abre el modal.
+    addPropertyBtn.addEventListener('click', () => {
+        propertyModal.style.display = 'flex';
+        propertyForm.reset();
+        loadAgents();
+        propertyForm.onsubmit = (e) => handlePropertyFormSubmit(e);
+    });
 });
 
-// Funciones
+closeModal.addEventListener('click', () => {
+    propertyModal.style.display = 'none';
+});
+
+// se cargan las propiedades
 async function loadProperties(filters = {}) {
     console.log('Cargando propiedades con filtros:', filters);
     try {
@@ -35,6 +47,31 @@ async function loadProperties(filters = {}) {
     } catch (error) {
         console.error('Error cargando propiedades:', error);
         alert('Error al cargar las propiedades');
+    }
+}
+
+// Se cargan los agentes en el modal!!!
+async function loadAgents() {
+    try {
+        const response = await fetch(`${API_URL}/agentes`);
+        const data = await response.json();
+
+        if (data.success && Array.isArray(data.data)) {
+            const agentSelect = propertyForm.elements['agente_id'];
+            agentSelect.innerHTML = '<option value="">Seleccione un agente</option>'; // Limpiar opciones anteriores
+
+            data.data.forEach(agent => {
+                const option = document.createElement('option');
+                option.value = agent.id;
+                option.textContent = agent.nombre;
+                agentSelect.appendChild(option);
+            });
+        } else {
+            console.warn('La respuesta de la API no contiene un array de agentes');
+        }
+    } catch (error) {
+        console.error('Error cargando agentes:', error);
+        alert('Error al cargar los agentes');
     }
 }
 
@@ -78,7 +115,7 @@ function renderPropertyCard(property, userPermissions) {
     if (property.imagen) {
         imagePath = '/public' + property.imagen;
     } else {
-        imagePath = 'public/images/default.jpg';
+        imagePath = '/public/images/default.jpg';
     }
     
     const actionButtons = [
