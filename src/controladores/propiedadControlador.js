@@ -62,21 +62,29 @@ const propiedadController = {
         try {
             const requiredFields = ['titulo', 'tipo', 'descripcion', 'precio', 'direccion', 'agente_id'];
             const missingFields = requiredFields.filter(field => !req.body[field]);
-
+    
             if (missingFields.length > 0) {
                 return res.status(400).json({ 
                     success: false, 
                     error: `Faltan campos requeridos: ${missingFields.join(', ')}` 
                 });
             }
-
+    
             const { titulo, tipo, descripcion, precio, direccion, agente_id } = req.body;
+
+            console.log("Archivo recibido",req.files);
             
-            // Manejar múltiples imágenes
-            const imagenes = req.files ? req.files.map(file => `/images/${file.filename}`) : [];
-
+            // Manejo de imágenes
+            let imagenes = [];
+            if (req.files && req.files.length > 0) {
+                imagenes = req.files.map(file => `/images/${file.filename}`);
+            } else if (req.body.imagen) {
+                imagenes = Array.isArray(req.body.imagen) ? req.body.imagen : [req.body.imagen];
+            }
+            console.log("RUtas de las imagenes",imagenes);
+    
             const codigo = generatePropertyCode();
-
+    
             const newProperty = {
                 codigo,
                 tipo,
@@ -84,22 +92,23 @@ const propiedadController = {
                 descripcion,
                 precio: parseFloat(precio),
                 direccion,
-                imagenes: JSON.stringify(imagenes), // Guardar como JSON string
+                imagen: JSON.stringify(imagenes),  // Guardar las rutas como JSON string
                 estado: req.body.estado || 'disponible',
                 agente_id
             };
-
+    
             console.log('Datos a insertar en la base de datos:', newProperty);
-
+    
             const resultado = await Propiedad.create(newProperty);
-
+    
             res.status(201).json({ 
                 success: true, 
                 message: 'Propiedad creada exitosamente',
-                data: { id: resultado.insertId,
-                     ...newProperty,
-                      imagenes 
-                    }
+                data: { 
+                    id: resultado.insertId,
+                    ...newProperty,
+                    imagenes 
+                }
             });
         } catch (error) {
             console.error('Error en create:', error);
@@ -119,7 +128,8 @@ const propiedadController = {
                     message: 'Propiedad no encontrada' 
                 });
             }
-
+    
+            // Definir los datos actualizados a partir de los datos recibidos en `req.body`
             const datosActualizados = {
                 titulo: req.body.titulo,
                 tipo: req.body.tipo,
@@ -128,26 +138,28 @@ const propiedadController = {
                 direccion: req.body.direccion,
                 estado: req.body.estado
             };
-
-            // Manejar las imágenes
+    
+            // Manejar las nuevas imágenes si se han subido
             if (req.files && req.files.length > 0) {
+                
                 const nuevasImagenes = req.files.map(file => `/images/${file.filename}`);
                 datosActualizados.imagenes = JSON.stringify(nuevasImagenes);
-
-                // Eliminar imágenes anteriores
+    
+                
                 const imagenesAnteriores = JSON.parse(propiedadActual.imagenes || '[]');
                 for (const imagenAnterior of imagenesAnteriores) {
                     try {
                         const imagePath = path.join(process.cwd(), 'public', imagenAnterior);
                         if (fs.existsSync(imagePath)) {
-                            await unlinkAsync(imagePath);
+                            await unlinkAsync(imagePath); // Eliminar el archivo
                         }
                     } catch (unlinkError) {
                         console.error('Error al eliminar imagen anterior:', unlinkError);
                     }
                 }
             }
-
+    
+       
             const resultado = await Propiedad.update(req.params.id, datosActualizados);
             
             if (resultado.affectedRows === 0) {
@@ -156,7 +168,8 @@ const propiedadController = {
                     message: 'Propiedad no encontrada' 
                 });
             }
-
+    
+            
             res.json({ 
                 success: true, 
                 message: 'Propiedad actualizada exitosamente',

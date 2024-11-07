@@ -15,12 +15,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
-app.use('/images', express.static(path.join(__dirname, '/public/images')));
-app.use('/public', express.static(path.join(__dirname, '/public')));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-});
+app.use('/public', express.static(path.join(__dirname, 'public')));
+console.log('Directorio de archivos estáticos: ', path.join(__dirname, 'public'));
+
+// app.get('/', (req, res) => {
+//     res.sendFile(path.join(__dirname, '../public/index.html'));
+// });
 
 
 app.use('/api/propiedades', propiedadRuta);

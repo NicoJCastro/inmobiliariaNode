@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         destacadasContainer.innerHTML = properties.map(property => {
-            const imagePath = property.imagen && property.imagen.startsWith('/images/') ? property.imagen : `/images/${property.imagen || 'default.jpg'}`;
+            const imagePath = property.imagen && property.imagen.startsWith('/images/') ? property.imagen : `/images/default.jpg`;
 
             return `
                 <div class="col-md-4">

@@ -11,8 +11,8 @@ router.get('/', propiedadControlador.getAll);
 router.get('/agente/:agenteId', propiedadControlador.getByAgente);
 
 // Si es agente puede crear, modificar y eliminar propiedades. Rutas protegidas!!!
-router.post('/',[verificarToken, esAgente, fileImageUpload.single('imagen', 3)], propiedadControlador.create);
-router.put('/:id',[verificarToken, esAgente, fileImageUpload.single('imagen', 3)], propiedadControlador.update);
+router.post('/',[verificarToken, esAgente, fileImageUpload.array('imagen', 3)], propiedadControlador.create);
+router.put('/:id',[verificarToken, esAgente, fileImageUpload.array('imagen', 3)], propiedadControlador.update);
 router.delete('/:id',[verificarToken, esAgente], propiedadControlador.delete);
 
 module.exports = router;
