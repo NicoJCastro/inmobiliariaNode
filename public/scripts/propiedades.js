@@ -72,15 +72,15 @@ function displayProperties(properties) {
 }
 
 function renderPropertyCard(property, userPermissions) {
-    // Normalizar la ruta de la imagen
-    let imagePath = 'public/images/default.jpg';
+    
+     console.log('Ruta Imagen', property.imagen);
 
     if (property.imagen) {
-        imagePath = property.imagen.startsWith('images/') ? `public/${property.imagen}` : `public/images/${property.imagen.replace(/^public\/images\//, '')}`;
-    }  
+        imagePath = '/public' + property.imagen;
+    } else {
+        imagePath = 'public/images/default.jpg';
+    }
     
-    console.log('Normalized imagePath:', imagePath);
-
     const actionButtons = [
         userPermissions.canEdit ? `<button onclick="editProperty(${property.id})" class="btn btn-edit"><i class="fas fa-edit"></i> Editar</button>` : '',
         userPermissions.canDelete ? `<button onclick="deleteProperty(${property.id})" class="btn btn-delete"><i class="fas fa-trash"></i> Eliminar</button>` : ''
