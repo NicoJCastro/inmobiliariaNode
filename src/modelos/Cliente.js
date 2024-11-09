@@ -61,6 +61,25 @@ class Cliente {
                 });
             });
         }
+
+        static login(email, password) {
+            return new Promise((resolve, reject) => {
+                db.query('SELECT * FROM clientes WHERE email = ?', email, (err, results) => {
+                    if (err) {
+                        console.error('Error en la consulta de login:', err);
+                        return reject(err);
+                    }
+                    if (results.length === 0) {
+                        return resolve({ success: false, message: 'Usuario no encontrado' });
+                    }
+                    const cliente = results[0];
+                    if (cliente.password !== password) {
+                        return resolve({ success: false, message: 'Contraseña incorrecta' });
+                    }
+                    resolve({ success: true, data: cliente });
+                });
+            });
+        }
 }
 
 module.exports = Cliente;

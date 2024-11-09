@@ -19,9 +19,12 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
+    const tipoUsuario = document.getElementById("tipoUsuario").value;
+
+    const loginUrl = tipoUsuario === 'agente' ? '/api/agentes/login' : '/api/clientes';
 
     try {
-        const response = await fetch('/api/agentes/login', {
+        const response = await fetch(loginUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -33,15 +36,23 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         console.log("Respuesta completa del servidor:", data);
 
         if (response.ok) {
-            // Verificar la estructura de la respuesta
+            // Usamos la estructura de respuesta esperada para guardar el token en localStorage
             if (data.success && data.data) {                
                 localStorage.setItem("token", data.data.token);
-                localStorage.setItem("agente", JSON.stringify(data.data.agente));
+                localStorage.setItem("user", JSON.stringify(data.data.agente || data.data.cliente));
+
+                if (tipoUsuario === 'agente') {
+                    window.location.href = 'agentes.html';
+                } else {
+                    window.location.href = 'clientes.html';
+                }
+
                 const isAdmin = data.data.agente && (data.data.agente.nombre === 'admin' || data.data.agente.email === 'admin@ejemplo.com');
                 localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
-            } else if (data.token && data.agente) {
+                
+            } else if (data.token && (data.agente || data.cliente)) {
                 localStorage.setItem("token", data.token);
-                localStorage.setItem("agente", JSON.stringify(data.agente));
+                localStorage.setItem("user", JSON.stringify(data.agente || data.cliente));
                 const isAdmin = data.agente && (data.agente.nombre === 'admin' || data.agente.email === 'admin@ejemplo.com');
                 localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
             } else {
@@ -55,10 +66,10 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
                 console.error("No se ha recibido token");
             }
 
-            if (localStorage.getItem("agente")) {
-                console.log("Agente guardado en localStorage");
+            if (localStorage.getItem("user")) {
+                console.log("Usuario guardado en localStorage");
             } else {
-                console.error("No se ha recibido agente");
+                console.error("No se ha recibido usuario");
             }
             
             // Establecer permisos por defecto
@@ -71,8 +82,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
             // Guardar los permisos en localStorage
             localStorage.setItem("userPermissions", JSON.stringify(defaultPermissions));
             
-            // Redirigir a la página de lista de agentes
-            window.location.href = 'agentes.html';
+            // Redirigir a la página de lista de agentes o clientes
+            window.location.href = tipoUsuario === 'agente' ? 'agentes.html' : 'clientes.html';
         } else {
             // Mostrar mensaje de error
             const messageElement = document.getElementById("loginMessage");

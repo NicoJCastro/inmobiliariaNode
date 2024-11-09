@@ -69,6 +69,14 @@
                                 </div>
                             </div>
 
+                            <div class="mb-3">
+                                <label for="tipoUsuario" class="form-label">Tipo de usuario:</label>
+                                <select id="tipoUsuario" class="form-select" required>
+                                    <option value="agente">Agente</option>
+                                    <option value="cliente">Cliente</option>
+                                </select>
+                            </div>
+
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
@@ -76,7 +84,7 @@
                             </div>
 
                             <div id="loginMessage" class="alert mt-3 d-none">
-                                <!-- Mensajes de error o éxito irán aquí -->
+                                <!-- El mensaje de exito o error -->
                             </div>
                         </form>
                     </div>

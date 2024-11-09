@@ -97,6 +97,22 @@ const clietnteController = {
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }
+    },
+
+    login: async (req, res) => {
+        try {
+            const { email, password } = req.body;
+
+            const cliente = await Cliente.login(email, password);
+
+            if (cliente.success) {
+                res.json({ success: true, data: cliente.data });
+            } else {
+                res.status(401).json({ success: false, message: cliente.message });
+            }
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
     }
 
 
