@@ -50,12 +50,51 @@
             <!-- Las propiedades se cargarán dinámicamente aquí -->
         </section>
     </main>
+
+    <div id="interestForm" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Registro de Cliente</h3>
+            <div class="mensaje alert d-none" id="interestMessage"></div>
+            
+            <form id="clientInterestForm">
+                <!-- Campos existentes en tu login.js -->
+                <div class="form-group">
+                    <input type="text" id="clientName" class="form-control" placeholder="Nombre" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="clientLastName" class="form-control" placeholder="Apellido" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="email" id="clientEmail" class="form-control" placeholder="Email" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" id="clientPassword" class="form-control" placeholder="Contraseña" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="tel" id="clientPhone" class="form-control" placeholder="Teléfono">
+                </div>
+                
+                <!-- Campos ocultos para el interés -->
+                <input type="hidden" id="interestType">
+                <input type="hidden" id="propertyId">
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Registrar Interés</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeInterestForm()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
     
-    <div class="modal" id="propertyModal">
+    <div class="modal" id="propertyModal" style="display: none;">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
             <h2>Agregar Propiedad</h2>
-
+    
             <form id="propertyForm" class="modal-form" enctype="multipart/form-data">
                 <input type="text" name="codigo" placeholder="Código de propiedad" required>
                 <input type="text" name="titulo" placeholder="Título de la propiedad" required>                
@@ -112,6 +151,7 @@
 
     <script src="/public/scripts/propiedades.js"></script>
     <script src="/public/scripts/agentes.js"></script>
+    <script src="/public/scripts/interes.js"></script>
     
 
 </body>

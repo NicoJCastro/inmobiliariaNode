@@ -6,12 +6,13 @@ const agenteSelect = document.querySelector('select[name="agente_id"]');
 
 // Verificar si el usuario es administrador
 const agenteData = localStorage.getItem('agente');
-let isAdmin = localStorage.getItem('isAdmin') === 'true';
+let isAdmin = false;
 
 let usuarioAdmin;
 
 if (agenteData) {
-    const nombre = JSON.parse(agenteData).nombre;
+    const agente = JSON.parse(agenteData).agente; // Accede al objeto anidado 'agente'
+    const nombre = agente.nombre;
     isAdmin = nombre === 'admin';
     usuarioAdmin = {
         nombre: nombre,

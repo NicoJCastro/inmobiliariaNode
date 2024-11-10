@@ -17,10 +17,10 @@ document.getElementById('togglePassword').addEventListener('click', function() {
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-   const loginInfo = {
+    const loginInfo = {
         email: document.getElementById("email").value,
         password: document.getElementById("password").value,
-   }
+    }
     const tipoUsuario = document.getElementById("tipoUsuario").value;
     const loginUrl = tipoUsuario === 'agente' ? '/api/agentes/login' : '/api/clientes/login';
 
@@ -37,8 +37,20 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         console.log("Respuesta completa del servidor:", data);
 
         if (data.success) {
-            localStorage.setItem("token", data.token);
+            localStorage.setItem("token", data.data.token);
             localStorage.setItem("user", JSON.stringify(data.data));
+            if (tipoUsuario === 'agente') {
+                localStorage.setItem("agente", JSON.stringify(data.data));
+                // Establecer permisos basados en si el usuario es admin
+                const isAdmin = data.data.agente.nombre === 'admin';
+                console.log('isAdmin:', isAdmin); // Log para depurar
+                localStorage.setItem("userPermissions", JSON.stringify({
+                    canAdd: isAdmin,
+                    canEdit: isAdmin,
+                    canDelete: isAdmin
+                }));
+                console.log('Permisos guardados:', JSON.parse(localStorage.getItem('userPermissions'))); // Log para depurar
+            }
             window.location.href = tipoUsuario === 'agente' ? 'agentes.html' : 'clientes.html';
         } else {
             const messageElement = document.getElementById("loginMessage");

@@ -5,6 +5,7 @@ const path = require('path');
 const propiedadRuta = require('./src/rutas/propiedadesRuta');
 const clienteRuta = require('./src/rutas/clientesRuta');
 const agentesRuta = require('./src/rutas/agentesRuta');
+const interesRuta = require('./src/rutas/interesesRuta');
 require('dotenv').config();
 
 const app = express();
@@ -23,6 +24,7 @@ app.get('/', (req, res) => {
 app.use('/api/propiedades', propiedadRuta);
 app.use('/api/clientes', clienteRuta);
 app.use('/api/agentes', agentesRuta);
+app.use('/api/intereses', interesRuta);
 
 
 app.use((err, req, res, next) => {

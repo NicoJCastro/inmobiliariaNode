@@ -101,6 +101,7 @@ function displayProperties(properties) {
     }
 
     const userPermissions = JSON.parse(localStorage.getItem('userPermissions') || '{}');
+    console.log('Permisos de usuario:', userPermissions);
     propertiesGrid.innerHTML = properties.length 
         ? properties.map(property => renderPropertyCard(property, userPermissions)).join('') 
         : '<p>No hay propiedades disponibles.</p>';
@@ -123,6 +124,13 @@ function renderPropertyCard(property, userPermissions) {
         userPermissions.canDelete ? `<button onclick="deleteProperty(${property.id})" class="btn btn-delete"><i class="fas fa-trash"></i> Eliminar</button>` : ''
     ].filter(Boolean).join('');
 
+    let interestButtons = '';
+    if (property.tipo === 'alquiler') {
+        interestButtons = `<button class="btn" onclick="showInterestForm('alquilar', ${property.id})">Alquilar</button>`;
+    } else if (property.tipo === 'venta') {
+        interestButtons = `<button class="btn" onclick="showInterestForm('comprar', ${property.id})">Comprar</button>`;
+    }
+
     return `
         <div class="property-card">
             <img src="${imagePath}" alt="${property.titulo}" class="property-image" onerror="this.style.display='none'">
@@ -134,6 +142,7 @@ function renderPropertyCard(property, userPermissions) {
                 <p class="property-type">${property.tipo}</p>
                 <p class="property-status">${property.estado}</p>
                 ${actionButtons ? `<div class="property-actions">${actionButtons}</div>` : ''}
+                ${interestButtons ? `<div class="property-interest">${interestButtons}</div>` : ''}
             </div>
         </div>
     `;
@@ -288,9 +297,9 @@ async function handlePropertyFormSubmit(e, id = null) {
             throw new Error(`Error HTTP: ${response.status}`);
         }
 
-        const data = await response.json(); // Esperar la respuesta de la API
+        const data = await response.json(); 
 
-        if (data.success) {  // Verificar si la respuesta de la API fue exitosa
+        if (data.success) {  
             alert(`Propiedad ${id ? 'actualizada' : 'creada'} exitosamente`);
             propertyForm.reset();
             propertyModal.style.display = 'none';
@@ -301,5 +310,145 @@ async function handlePropertyFormSubmit(e, id = null) {
     } catch (error) {
         console.error(`Error ${id ? 'actualizando' : 'creando'} propiedad:`, error);
         alert(`Error al ${id ? 'actualizar' : 'crear'} la propiedad: ` + error.message);
+    }
+}
+
+// Cliente quiere comprar o alquilar
+// Agregar estas funciones a tu archivo propiedades.js
+
+function showInterestForm(tipoInteres, propertyId) {
+    const interestForm = document.getElementById('interestForm');
+    const interestMessage = document.getElementById('interestMessage');
+    
+    // Resetear el formulario y los mensajes
+    document.getElementById('clientInterestForm').reset();
+    if (interestMessage) {
+        interestMessage.classList.add('d-none');
+    }
+    
+    // Establecer los valores ocultos
+    document.getElementById('interestType').value = tipoInteres;
+    document.getElementById('propertyId').value = propertyId;
+    
+    // Mostrar el modal
+    interestForm.style.display = 'block';
+}
+
+function closeInterestForm() {
+    const interestForm = document.getElementById('interestForm');
+    const clientInterestForm = document.getElementById('clientInterestForm');
+    const interestMessage = document.getElementById('interestMessage');
+    
+    interestForm.style.display = 'none';
+    clientInterestForm.reset();
+    if (interestMessage) {
+        interestMessage.classList.add('d-none');
+    }
+}
+
+// Actualizar el event listener existente para el formulario de interés
+document.getElementById('clientInterestForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const messageElement = document.getElementById('interestMessage');
+    
+    // Obtener todos los valores del formulario
+    const clientName = document.getElementById('clientName').value;
+    const clientLastName = document.getElementById('clientLastName').value;
+    const clientEmail = document.getElementById('clientEmail').value;
+    const clientPassword = document.getElementById('clientPassword').value;
+    const clientPhone = document.getElementById('clientPhone').value;
+    const interestType = document.getElementById('interestType').value;
+    const propertyId = document.getElementById('propertyId').value;
+
+    // Validación de campos obligatorios
+    if (!clientName || !clientLastName || !clientEmail || !clientPassword) {
+        if (messageElement) {
+            messageElement.textContent = 'Todos los campos son obligatorios';
+            messageElement.classList.remove('d-none');
+            messageElement.classList.add('alert-danger');
+        } else {
+            alert('Todos los campos son obligatorios');
+        }
+        return;
+    }
+
+    try {
+        // 1. Registrar al cliente
+        const clientResponse = await fetch(`${API_URL}/clientes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nombre: clientName,
+                apellido: clientLastName,
+                email: clientEmail,
+                password: clientPassword,
+                telefono: clientPhone,
+                tipoUsuario: 'cliente'
+            })
+        });
+
+        const clientData = await clientResponse.json();
+
+        if (!clientData.success) {
+            throw new Error(clientData.message || 'Error al registrar el cliente');
+        }
+
+        // 2. Registrar el interés
+        const interestResponse = await fetch(`${API_URL}/intereses`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                clienteId: clientData.data.id,
+                propiedadId: propertyId,
+                tipoInteres: interestType
+            })
+        });
+
+        const interestData = await interestResponse.json();
+
+        if (interestData.success) {
+            // Guardar token y datos del usuario
+            localStorage.setItem("token", clientData.token);
+            localStorage.setItem("user", JSON.stringify(clientData.data));
+
+            // Mostrar mensaje de éxito
+            if (messageElement) {
+                messageElement.textContent = 'Registro exitoso!';
+                messageElement.classList.remove('d-none', 'alert-danger');
+                messageElement.classList.add('alert-success');
+            } else {
+                alert('Registro exitoso!');
+            }
+
+            // Cerrar el modal y redirigir después de un breve delay
+            setTimeout(() => {
+                closeInterestForm();
+                window.location.href = 'clientes.html';
+            }, 2000);
+        } else {
+            throw new Error(interestData.message || 'Error al registrar el interés');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        if (messageElement) {
+            messageElement.textContent = error.message || 'Error al procesar la solicitud';
+            messageElement.classList.remove('d-none');
+            messageElement.classList.add('alert-danger');
+        } else {
+            alert(error.message || 'Error al procesar la solicitud');
+        }
+    }
+});
+
+// Agregar event listener para cerrar el modal al hacer clic fuera
+window.onclick = function(event) {
+    const modal = document.getElementById('interestForm');
+    if (event.target === modal) {
+        closeInterestForm();
     }
 }

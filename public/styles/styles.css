@@ -288,3 +288,21 @@ body {
     background: #f56565;
     color: white;
 }
+
+#interestForm {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 20px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    display: none; /* Inicialmente oculto */
+}
+
+.property-card {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+}
