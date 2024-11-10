@@ -5,28 +5,28 @@ inmobiliaria-api/
 |   ├── styles/
 |   └── scripts/
 ├── src/
-│   ├── routes/           👈 Maneja las peticiones HTTP y las redirige a los controladores
-│   │   ├── propiedadesRouter.js
-│   │   ├── agentesRouter.js
-│   │   ├── interesesRouter.js
-│   │   └── clientesRouter.js
-│   ├── controllers/      👈 Contiene la lógica de la aplicación, llama a los modelos y retorna la respuesta adecuada
-│   │   ├── propiedadController.js
-│   │   ├── agenteController.js
-│   │   ├── interesesController.js
-│   │   └── clienteController.js
-│   ├── models/           👈 Define las estructuras de datos y las interacciones con la base de datos
+│   ├── rutas/           👈 Maneja las peticiones HTTP y las redirige a los controladores
+│   │   ├── propiedadesRura.js
+│   │   ├── agentesRura.js
+│   │   ├── interesesRura.js
+│   │   └── clientesRura.js
+│   ├── controladores/      👈 Contiene la lógica de la aplicación, llama a los modelos y retorna la respuesta adecuada
+│   │   ├── propiedadControlador.js
+│   │   ├── agenteControlador.js
+│   │   ├── interesesControlador.js
+│   │   └── clienteControlador.js
+│   ├── modelos/           👈 Define las estructuras de datos y las interacciones con la base de datos
 │   │   ├── Propiedad.js
 │   │   ├── Agente.js
 │   │   ├── Intereses.js        
 │   │   └── Cliente.js
 │   ├── middleware/       👈 Para autenticación, validación, manejo de errores, etc.
 │   │   ├── auth.js
-│   │   └── validator.js
+│   │   └── fileImageUpload.js
 │   ├── config/           👈 Configuración de la base de datos y otras configuraciones globales
 │   │   └── db.js
-│   ├── utils/            👈 Funciones auxiliares
-│   │   └── helpers.js
+│   ├── utilidades/            👈 Funciones auxiliares en este caso para enviar mails. La cual tiene errores
+│   │   └── emailService.js
 │   
 └── app.js            👈 Configura Express, conecta middlewares y rutas
 ├── .env                  👈 Variables de entorno para información sensible
@@ -37,12 +37,12 @@ inmobiliaria-api/
 
 - **public**: Contiene archivos estáticos como imágenes, CSS y JavaScript.
 - **src**: Es el corazón de la aplicación, donde reside toda la lógica.
-  - **routes**: Maneja las rutas HTTP y redirige las peticiones a los controladores correspondientes.
-  - **controllers**: Contiene la lógica de negocio, llama a los modelos y retorna las respuestas adecuadas.
-  - **models**: Define las estructuras de datos y las interacciones con la base de datos.
+  - **rutas**: Maneja las rutas HTTP y redirige las peticiones a los controladores correspondientes.
+  - **controladores**: Contiene la lógica de negocio, llama a los modelos y retorna las respuestas adecuadas.
+  - **modelos**: Define las estructuras de datos y las interacciones con la base de datos.
   - **middleware**: Incluye lógica de interceptación como autenticación, validación y manejo de errores.
   - **config**: Configuración de la base de datos y otras configuraciones globales.
-  - **utils**: Funciones auxiliares y utilitarias.
+  - **utilidades**: Funciones auxiliares y utilitarias.
   - **app.js**: Configura Express, conecta middlewares y rutas; es el punto de entrada de la aplicación.
 
 ### Explicación MVC
@@ -65,7 +65,6 @@ La arquitectura MVC (Modelo-Vista-Controlador) es un patrón de diseño que sepa
   - En una aplicación Node.js, los controladores suelen estar definidos en la carpeta `controllers`.
 
 Este patrón ayuda a organizar el código de manera que sea más fácil de mantener y escalar, separando claramente las responsabilidades de cada componente.
-
 
 
 
@@ -97,8 +96,3 @@ Solo se usa durante el desarrollo
 Por eso se instala con --save-dev
 Ejecutar npm run dev
 
-### Imagenes
-
-Ver de separar el manejo de las imagene con una ruta que asocie el id de la propieda con la imagen
-
-/:id/imagen, metodo
