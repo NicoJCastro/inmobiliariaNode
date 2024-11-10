@@ -22,9 +22,11 @@
         </nav>
     </header>
 
+    <!-- FILTROS PARA BUSCAR DE DIFERENTES MANREAS LAS PROPIEDADES -->
     <main class="main-content">
         <section class="filters">
             <form id="filterForm">
+                <input type="text" name="codigo" id="codigo" placeholder="Código de propiedad">
                 <select name="tipo" id="tipo">
                     <option value="">Tipo de operación</option>
                     <option value="venta">Venta</option>
@@ -42,7 +44,12 @@
                     <option value="">Seleccione un agente</option>
                     <!-- Aquí se cargarán dinámicamente los agentes -->
                 </select>
+                <input type="number" name="page" id="page" placeholder="Página" value="1">
+                <input type="number" name="limit" id="limit" placeholder="Resultados por página" value="10">
                 <button type="submit" class="btn">Buscar</button>
+                <section id="pagination" class="pagination">
+                    <!-- Los botones de paginación se cargarán dinámicamente aquí -->
+                </section>
             </form>
         </section>
 
@@ -51,7 +58,7 @@
         </section>
     </main>
 
-    <div id="interestForm" class="modal" style="display:none;">
+    <div id="interestForm" class="modal" style="display: none;">
         <div class="modal-content">
             <h3>Registro de Cliente</h3>
             <div class="mensaje alert d-none" id="interestMessage"></div>

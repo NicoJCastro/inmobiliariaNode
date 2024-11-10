@@ -50,6 +50,37 @@ async function loadProperties(filters = {}) {
     }
 }
 
+// PAGINACION DE PROPIEDADES
+
+function paginacionPropiedades(total, paginaActual, limite) {
+    const containerPaginacion = document.getElementById('paginacion');
+    const totalPaginas = Math.ceil(total / limite);
+    let paginacionHTML = '';
+
+    for (let i = 1; i <= totalPaginas; i++) {
+        paginacionHTML += `<button class="pagination-btn" data-page="${i}">${i}</button>`;
+    }
+
+    containerPaginacion.innerHTML = paginacionHTML;
+
+    document.querySelectorAll('.pagination-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const page = e.target.getAttribute('data-page');
+            document.getElementById('page').value = page;
+            document.getElementById('filterForm').dispatchEvent(new Event('submit'));
+        });
+    });
+
+}
+
+// Evento de submit en el formulario de filtros
+document.getElementById('filterForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const filters = Object.fromEntries(formData.entries());
+    loadProperties(filters);
+});
+
 // Se cargan los agentes en el modal!!!
 async function loadAgents() {
     try {
@@ -314,8 +345,6 @@ async function handlePropertyFormSubmit(e, id = null) {
 }
 
 // Cliente quiere comprar o alquilar
-// Agregar estas funciones a tu archivo propiedades.js
-
 function showInterestForm(tipoInteres, propertyId) {
     const interestForm = document.getElementById('interestForm');
     const interestMessage = document.getElementById('interestMessage');
@@ -331,7 +360,7 @@ function showInterestForm(tipoInteres, propertyId) {
     document.getElementById('propertyId').value = propertyId;
     
     // Mostrar el modal
-    interestForm.style.display = 'block';
+    interestForm.style.display = 'flex';
 }
 
 function closeInterestForm() {
@@ -343,6 +372,14 @@ function closeInterestForm() {
     clientInterestForm.reset();
     if (interestMessage) {
         interestMessage.classList.add('d-none');
+    }
+}
+
+// Agregar event listener para cerrar el modal al hacer clic fuera
+window.onclick = function(event) {
+    const modal = document.getElementById('interestForm');
+    if (event.target === modal) {
+        closeInterestForm();            
     }
 }
 
@@ -445,10 +482,3 @@ document.getElementById('clientInterestForm').addEventListener('submit', async f
     }
 });
 
-// Agregar event listener para cerrar el modal al hacer clic fuera
-window.onclick = function(event) {
-    const modal = document.getElementById('interestForm');
-    if (event.target === modal) {
-        closeInterestForm();
-    }
-}

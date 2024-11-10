@@ -8,8 +8,18 @@ class Cliente {
     
         static getAll() {
             return new Promise((resolve, reject) => {
-                db.query('SELECT * FROM clientes', (err, results) => {
-                    if (err) reject(err);
+                const query = `
+                    SELECT clientes.id, clientes.nombre, clientes.apellido, clientes.email, clientes.telefono,
+                           intereses.tipo_interes
+                    FROM clientes
+                    LEFT JOIN intereses ON clientes.id = intereses.cliente_id
+                `; // Realizo la consulta y obtengo el tipo de interes del la tabla intereses
+    
+                db.query(query, (err, results) => {
+                    if (err) {
+                        console.error('Error en la consulta de clientes con intereses:', err);
+                        return reject(err);
+                    }
                     resolve(results);
                 });
             });

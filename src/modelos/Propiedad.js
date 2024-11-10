@@ -64,9 +64,9 @@ class Propiedad {
         });
     }
 
-     // Obtener propiedades por agente
+    // Obtener propiedades por agente
 
-     static getByAgente(agenteId) {
+    static getByAgente(agenteId) {
         return new Promise((resolve, reject) => {
             db.query('SELECT * FROM propiedades WHERE agente_id = ?', agenteId, (err, results) => {
                 if (err) reject(err);
@@ -93,7 +93,7 @@ class Propiedad {
             if (propiedadData.imagenes && Array.isArray(propiedadData.imagenes)) {
                 propiedadData.imagenes = JSON.stringify(propiedadData.imagenes);
             }
-            
+
             db.query('INSERT INTO propiedades SET ?', propiedadData, (err, result) => {
                 if (err) {
                     console.error('Error en la consulta de inserción:', err);
@@ -114,10 +114,10 @@ class Propiedad {
             }
 
             // Verificar que propiedadData no esté vacío
-            const fieldsToUpdate = Object.keys(propiedadData).filter(key => 
+            const fieldsToUpdate = Object.keys(propiedadData).filter(key =>
                 propiedadData[key] !== undefined && propiedadData[key] !== null
             );
-            
+
             if (fieldsToUpdate.length === 0) {
                 return reject(new Error('No hay datos válidos para actualizar'));
             }
@@ -129,7 +129,7 @@ class Propiedad {
 
             const query = 'UPDATE propiedades SET ? WHERE id = ?';
             console.log('SQL Query:', query, [propiedadData, id]);
-            
+
             db.query(query, [propiedadData, id], (err, result) => {
                 if (err) {
                     console.error('Error en la consulta de actualización:', err);
@@ -155,16 +155,21 @@ class Propiedad {
 
     // Buscar propiedades por filtros
 
-    static searchWithFilters(filters) {
+    static buscarConFiltros(filters) {
         return new Promise((resolve, reject) => {
             let query = 'SELECT * FROM propiedades WHERE 1=1';
             let valores = [];
+
+            if (filters.codigo) {
+                query += ' AND codigo = ?';
+                valores.push(filters.codigo);
+            }
 
             if (filters.tipo) {
                 query += ' AND tipo = ?';
                 valores.push(filters.tipo);
             }
-            
+
 
             if (filters.precioMin) {
                 query += ' AND precio >= ?';
@@ -191,6 +196,14 @@ class Propiedad {
                 valores.push(filters.agente_id);
             }
 
+            // ACA MANEJO LA PAGINACION EN EL MODELO
+            const limit = parseInt(filters.limit, 10) || 10;
+            const page = parseInt(filters.page, 10) || 1;
+            const offset = (page - 1) * limit;
+
+            query += ' LIMIT ? OFFSET ?';
+            valores.push(limit, offset);
+
             db.query(query, valores, (err, results) => {
                 if (err) reject(err);
                 resolve(results);
@@ -198,6 +211,54 @@ class Propiedad {
 
         });
     }
+
+    static contamosConFiltros(filters) {
+        return new Promise((resolve, reject) => {
+            let query = 'SELECT COUNT(*) as total FROM propiedades WHERE 1=1';
+            let valores = [];
+    
+            if (filters.codigo) {
+                query += ' AND codigo = ?';
+                valores.push(filters.codigo);
+            }
+    
+            if (filters.tipo) {
+                query += ' AND tipo = ?';
+                valores.push(filters.tipo);
+            }
+    
+            if (filters.precioMin) {
+                query += ' AND precio >= ?';
+                valores.push(filters.precioMin);
+            }
+    
+            if (filters.precioMax) {
+                query += ' AND precio <= ?';
+                valores.push(filters.precioMax);
+            }
+    
+            if (filters.estado) {
+                query += ' AND estado = ?';
+                valores.push(filters.estado);
+            }
+    
+            if (filters.images) {
+                query += ' AND images > 0';
+                valores.push(filters.images);
+            }
+    
+            if (filters.agente_id) {
+                query += ' AND agente_id = ?';
+                valores.push(filters.agente_id);
+            }
+    
+            db.query(query, valores, (err, results) => {
+                if (err) reject(err);
+                resolve(results[0].total);
+            });
+        });
+    }
+
 
 }
 

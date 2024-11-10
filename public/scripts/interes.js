@@ -6,9 +6,9 @@ document.getElementById('clientInterestForm').addEventListener('submit', async f
     // Obtener todos los campos del formulario
     const clientName = document.getElementById('clientName').value;
     const clientEmail = document.getElementById('clientEmail').value;
-    const clientLastName = document.getElementById('clientLastName').value; // Nuevo campo
-    const clientPhone = document.getElementById('clientPhone').value; // Nuevo campo
-    const password = document.getElementById('clientPassword').value; // Nuevo campo
+    const clientLastName = document.getElementById('clientLastName').value; 
+    const clientPhone = document.getElementById('clientPhone').value; 
+    const password = document.getElementById('clientPassword').value; 
     const interestType = document.getElementById('interestType').value;
     const propertyId = document.getElementById('propertyId').value;
 
@@ -20,6 +20,17 @@ document.getElementById('clientInterestForm').addEventListener('submit', async f
         return;
     }
 
+    try {
+
+    // Consulto si el cliente ya existe
+    const clienteExisteResp = await fetch(`${API_URL_INTERESES}/clientes?email=${clientEmail}`);
+    const clienteExiste = await clienteExisteResp.json();
+
+    let clienteId;
+    if (clienteExiste.success && clienteExiste.data){
+        clienteId = clienteExiste.data.id;
+    } else {
+
     // Preparar datos del cliente
     const clientInfo = {
         nombre: clientName,
@@ -30,8 +41,7 @@ document.getElementById('clientInterestForm').addEventListener('submit', async f
         tipoUsuario: 'cliente'
     };
 
-    try {
-        // Registrar al cliente
+      // Registrar al cliente
         const clientResponse = await fetch(`${API_URL_INTERESES}/clientes`, {
             method: 'POST',
             headers: {
@@ -48,6 +58,11 @@ document.getElementById('clientInterestForm').addEventListener('submit', async f
             messageElement.classList.remove('d-none');
             return;
         }
+
+        clienteId = clientData.data.id;
+        localStorage.setItem("token", clientData.token);
+        localStorage.setItem("user", JSON.stringify(clientData.data));
+    }
 
         // Si el cliente se registró exitosamente, registrar el interés
         const interestInfo = {

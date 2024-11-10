@@ -25,8 +25,8 @@ const propiedadController = {
    
     getById: async (req, res) => {
         try {
-            const propiedad = await Propiedad.getById(req.params.id);
-            res.json({ success: true, data: propiedad });
+            const propiedades = await Propiedad.getById(req.params.id);
+            res.json({ success: true, data: propiedades });
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }
@@ -246,10 +246,24 @@ const propiedadController = {
 
     
 
-    searchWithFilters: async (req, res) => {
+    buscarConFiltros: async (req, res) => {
         try {
-            const propiedades = await Propiedad.searchWithFilters(req.query);
-            res.json({ success: true, data: propiedades });
+            const { page = 1, limit = 10, ...filters } = req.query;
+            const offset = (page - 1) * limit;
+    
+            // Obtener las propiedades filtradas
+            const propiedades = await Propiedad.buscarConFiltros({ ...filters, limit, offset });
+    
+            // Obtener el total de propiedades para la paginación
+            const totalPropiedades = await Propiedad.contamosConFiltros(filters);
+    
+            res.json({ 
+                success: true, 
+                data: propiedades,
+                total: totalPropiedades,
+                page: parseInt(page, 10),
+                limit: parseInt(limit, 10)
+            });
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }

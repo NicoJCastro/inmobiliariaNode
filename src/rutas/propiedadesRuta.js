@@ -4,7 +4,7 @@ const propiedadControlador = require('../controladores/propiedadControlador');
 const fileImageUpload = require('../middleware/fileImageUpload');
 const { verificarToken, esAgente } = require('../middleware/auth'); 
 
-router.get('/search', propiedadControlador.searchWithFilters);
+router.get('/search', propiedadControlador.buscarConFiltros);
 router.get('/:id', propiedadControlador.getById);
 router.get('/codigo/:codigo', propiedadControlador.getByCodigo);
 router.get('/', propiedadControlador.getAll);
