@@ -85,9 +85,17 @@ async function editarAgente(id) {
         const response = await fetch(`${AGENTES_API_URL}/${id}`);
         const data = await response.json();
         if (data.success) {
-            // Ver de armar el Modal para editar el agente
-            console.log('Datos del agente para editar:', data.data);
-            // Implementa la lógica para abrir y rellenar el formulario
+            const agente = data.data;
+           
+            document.getElementById('editNombre').value = agente.nombre;
+            document.getElementById('editApellido').value = agente.apellido;
+            document.getElementById('editEmail').value = agente.email;
+            document.getElementById('editTelefono').value = agente.telefono;
+            document.getElementById('editAgenteId').value = agente.id;
+
+            // Mostrar el modal
+            const editAgentModal = new bootstrap.Modal(document.getElementById('editAgentModal'));
+            editAgentModal.show();
         } else {
             throw new Error(data.error);
         }
@@ -149,3 +157,46 @@ function displayAgentes(agentes) {
             </tr>
         `).join('');
 }
+
+// Envio del formularo cuando editamos el agente
+
+document.getElementById('editAgentForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const id = document.getElementById('editAgenteId').value;
+    const nombre = document.getElementById('editNombre').value;
+    const apellido = document.getElementById('editApellido').value;
+    const email = document.getElementById('editEmail').value;
+    const telefono = document.getElementById('editTelefono').value;
+
+    const updatedAgente = {
+        nombre,
+        apellido,
+        email,
+        telefono
+    };
+
+    try {
+        const response = await fetch(`${AGENTES_API_URL}/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(updatedAgente)
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            alert('Agente actualizado con éxito');
+            getAgentes(); // Recargar la lista de agentes
+            const editAgentModal = bootstrap.Modal.getInstance(document.getElementById('editAgentModal'));
+            editAgentModal.hide(); // Cerrar el modal
+        } else {
+            throw new Error(data.error);
+        }
+    } catch (error) {
+        console.error('Error al actualizar el agente:', error);
+        alert('Error al actualizar el agente');
+    }
+});
