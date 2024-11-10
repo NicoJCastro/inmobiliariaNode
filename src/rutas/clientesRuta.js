@@ -12,6 +12,7 @@ router.post('/', clienteControlador.create);
 router.post('/login', clienteControlador.login);
 
 router.put('/:id', clienteControlador.update);
+// Solo el administrador puede eliminar clientes
 router.delete('/:id', verificarToken, clienteControlador.delete);
 
 module.exports = router;

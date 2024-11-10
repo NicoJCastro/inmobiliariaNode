@@ -157,7 +157,7 @@ function renderPropertyCard(property, userPermissions) {
 
     let interestButtons = '';
     if (property.tipo === 'alquiler') {
-        interestButtons = `<button class="btn" onclick="showInterestForm('alquilar', ${property.id})">Alquilar</button>`;
+        interestButtons = `<button class="btn " onclick="showInterestForm('alquilar', ${property.id})">Alquilar</button>`;
     } else if (property.tipo === 'venta') {
         interestButtons = `<button class="btn" onclick="showInterestForm('comprar', ${property.id})">Comprar</button>`;
     }
@@ -173,7 +173,7 @@ function renderPropertyCard(property, userPermissions) {
                 <p class="property-type">${property.tipo}</p>
                 <p class="property-status">${property.estado}</p>
                 ${actionButtons ? `<div class="property-actions">${actionButtons}</div>` : ''}
-                ${interestButtons ? `<div class="property-interest">${interestButtons}</div>` : ''}
+                ${interestButtons ? `<div class="property-interest btn-interes">${interestButtons}</div>` : ''}
             </div>
         </div>
     `;

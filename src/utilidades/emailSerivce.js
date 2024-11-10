@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
@@ -26,7 +27,23 @@ const emailService = {
         } catch (error) {
             console.error('Error al enviar email:', error);
         }
+    },
+
+    async enviarEmailPersonalizado(destinatario, asunto, contenido) {
+        try {
+            await transporter.sendMail({
+                from: process.env.EMAIL_USER,
+                to: destinatario,
+                subject: asunto,
+                html: contenido
+            });
+        } catch (error) {
+            console.error('Error al enviar email personalizado:', error);
+            throw error;
+        }
     }
 };
 
-module.exports
+module.exports = emailService;
+
+// Tengo errores por temas de que gmail no permite el envío de correos desde aplicaciones no seguras, por lo que no puedo probar el envío de correos electrónicos. 

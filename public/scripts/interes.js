@@ -93,7 +93,7 @@ document.getElementById('clientInterestForm').addEventListener('submit', async f
             messageElement.classList.remove('alert-danger');
             messageElement.classList.add('alert-success');
 
-            // Opcional: redirigir al usuario
+            
             setTimeout(() => {
                 window.location.href = 'clientes.html';
             }, 2000);

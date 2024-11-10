@@ -38,8 +38,8 @@ window.onload = fetchClientes;
 
 // Funciones para editar y eliminar clientes
 function editCliente(clienteId) {
-    // Lógica para editar cliente
-    // Por ejemplo, puedes redirigir a un formulario de edición pasando el ID del cliente
+    // Aca tiene que ir la logica para editar al cliente desde un formulario
+    
     window.location.href = `editarCliente.html?id=${clienteId}`;
 }
 

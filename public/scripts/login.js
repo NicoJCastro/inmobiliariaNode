@@ -41,7 +41,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
             localStorage.setItem("user", JSON.stringify(data.data));
             if (tipoUsuario === 'agente') {
                 localStorage.setItem("agente", JSON.stringify(data.data));
-                // Establecer permisos basados en si el usuario es admin
+                // Establecer permisos basados en si el usuario es admin con el nombre 'admin'
                 const isAdmin = data.data.agente.nombre === 'admin';
                 console.log('isAdmin:', isAdmin); // Log para depurar
                 localStorage.setItem("userPermissions", JSON.stringify({

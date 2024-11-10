@@ -36,9 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         addPropertyBtn.addEventListener('click', getAgentes);
-    }
-
-    // También podrías cargar los agentes al inicio si lo deseas
+    }    
     getAgentes();
 });
 
@@ -87,8 +85,7 @@ async function editarAgente(id) {
         const response = await fetch(`${AGENTES_API_URL}/${id}`);
         const data = await response.json();
         if (data.success) {
-            // Aquí abrirías un modal o un formulario para editar
-            // y lo rellenarías con los datos del agente
+            // Ver de armar el Modal para editar el agente
             console.log('Datos del agente para editar:', data.data);
             // Implementa la lógica para abrir y rellenar el formulario
         } else {
