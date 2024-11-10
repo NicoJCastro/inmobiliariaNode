@@ -136,7 +136,8 @@ const propiedadController = {
                 descripcion: req.body.descripcion,
                 precio: parseFloat(req.body.precio),
                 direccion: req.body.direccion,
-                estado: req.body.estado
+                estado: req.body.estado,
+                agente_id: req.body.agente_id
             };
     
             // Manejar las nuevas imágenes si se han subido

@@ -230,6 +230,13 @@ async function editProperty(id) {
                 currentImageInput.value = property.imagen || '';
             }
 
+            //Cargar los agentes
+            await loadAgents();
+            if (propertyForm.elements['agente_id']) {
+                propertyForm.elements['agente_id'].value = property.agente_id || '';
+            }
+            console.log('Agente:', property.agente_id);
+
             propertyModal.style.display = 'flex';
             propertyForm.elements['imagen'].required = false;
 
