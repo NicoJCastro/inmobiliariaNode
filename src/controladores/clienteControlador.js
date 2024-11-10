@@ -28,7 +28,7 @@ const clietnteController = {
     // Crear un cliente
     create: async (req, res) => {
         try {
-            const { nombre, apellido, email, password, telefono, tipo_interes, fecha_creacion,  } = req.body;
+            const { nombre, apellido, email, password, telefono, fecha_creacion,  } = req.body;
 
             // Validaciones
             if (!nombre || !apellido || !email || !password) {
@@ -54,8 +54,7 @@ const clietnteController = {
                         apellido: apellido,
                         email: email,
                         password: password,
-                        telefono: telefono,
-                        tipo_interes: tipo_interes,
+                        telefono: telefono,                        
                         fecha_creacion: fecha_creacion
                  }
             });
@@ -110,9 +109,9 @@ const clietnteController = {
             // Si la autenticación es exitosa, generar un token JWT
             if (cliente) {
                 const token = jwt.sign(
-                    { id: cliente.id, email: cliente.email, rol: 'cliente' }, // Carga útil del token
-                    process.env.JWT_SECRET, // Clave secreta para firmar el token
-                    { expiresIn: '1h' } // Configurar el tiempo de expiración del token
+                    { id: cliente.id, email: cliente.email, rol: 'cliente' }, 
+                    process.env.JWT_SECRET, 
+                    { expiresIn: '1h' } 
                 );
 
                 // Enviar el token y los datos del cliente

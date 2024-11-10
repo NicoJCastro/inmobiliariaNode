@@ -66,26 +66,54 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
     const telefono = document.getElementById('registerTelefono').value;
+    const tipoUsuarioElement = document.getElementById('tipoUsuarioRegistrar');
+    
+
+    if (!nombre || !apellido || !email || !password || !tipoUsuarioElement.value) {
+        const messageElement = document.getElementById("registerMessage");
+        messageElement.textContent = 'Todos los campos son obligatorios';
+        messageElement.classList.remove('d-none');
+        return;
+    }
+
+    const tipoUsuario = tipoUsuarioElement.value;   
+
+    const registerInfo = {
+        nombre,
+        apellido,
+        email,
+        password,
+        telefono,
+        tipoUsuario,        
+    };
+
+    const registerUrl = tipoUsuario === 'agente' ? '/api/agentes/register' : '/api/clientes';
 
     try {
-        const response = await fetch(`${AGENTES_API_URL}/register`, {
+        const response = await fetch(registerUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ nombre, apellido, email, password, telefono })
+            body: JSON.stringify(registerInfo)
         });
         const data = await response.json();
 
+        console.log("Respuesta completa del servidor:", data);
+
         if (data.success) {
-            alert('Registro exitoso. Por favor, inicia sesión.');
-            document.getElementById('registerForm').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.data));
+            window.location.href = tipoUsuario === 'agente' ? 'agentes.html' : 'clientes.html';
         } else {
-            throw new Error(data.error || 'Error en el registro');
+            const messageElement = document.getElementById("registerMessage");
+            messageElement.textContent = data.message || 'Error en el registro';
+            messageElement.classList.remove('d-none');
         }
     } catch (error) {
-        console.error('Error en el registro:', error);
-        alert('Error en el registro: ' + error.message);
+        console.error("Error:", error);
+        const messageElement = document.getElementById("registerMessage");
+        messageElement.textContent = 'Error al conectar con el servidor';
+        messageElement.classList.remove('d-none');
     }
 });
