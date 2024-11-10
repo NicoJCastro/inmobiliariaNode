@@ -1,6 +1,7 @@
 const Cliente = require('../modelos/Cliente');
 const multer = require('multer');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 
 const clietnteController = {
 
@@ -103,13 +104,27 @@ const clietnteController = {
         try {
             const { email, password } = req.body;
 
+            // Autenticar al cliente
             const cliente = await Cliente.login(email, password);
 
-            if (cliente.success) {
-                res.json({ success: true, data: cliente.data });
-            } else {
-                res.status(401).json({ success: false, message: cliente.message });
+            // Si la autenticación es exitosa, generar un token JWT
+            if (cliente) {
+                const token = jwt.sign(
+                    { id: cliente.id, email: cliente.email, rol: 'cliente' }, // Carga útil del token
+                    process.env.JWT_SECRET, // Clave secreta para firmar el token
+                    { expiresIn: '1h' } // Configurar el tiempo de expiración del token
+                );
+
+                // Enviar el token y los datos del cliente
+                return res.json({ 
+                    success: true,                 
+                    data: cliente,
+                    token
+                });
             }
+
+            // Si no hay cliente, responder con un error de autenticación
+            res.status(401).json({ success: false, message: "Credenciales incorrectas" });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
         }

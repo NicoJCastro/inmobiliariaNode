@@ -1,4 +1,6 @@
 const db = require('../config/db');
+const bcrypt = require('bcryptjs');
+
 
 class Cliente {
     
@@ -28,18 +30,26 @@ class Cliente {
         // Crear un cliente
     
         static create(clienteData) {
-            return new Promise((resolve, reject) => {
-                db.query('INSERT INTO clientes SET ?', clienteData, (err, result) => {
-                    if (err) {
-                        console.error('Error en la consulta de inserción:', err); 
-                        reject(err);
-                    } else {
-                        resolve(result);
-                    }
-                });
+            return new Promise(async (resolve, reject) => {
+                try {
+                    // Hashear la contraseña antes de almacenarla
+                    const hashedPassword = await bcrypt.hash(clienteData.password, 10);
+                    clienteData.password = hashedPassword;
+        
+                    db.query('INSERT INTO clientes SET ?', clienteData, (err, result) => {
+                        if (err) {
+                            console.error('Error en la consulta de inserción:', err); 
+                            reject(err);
+                        } else {
+                            resolve(result);
+                        }
+                    });
+                } catch (err) {
+                    console.error('Error al hashear la contraseña:', err);
+                    reject(err);
+                }
             });
         }
-    
         // Actualizar un cliente
     
         static update(id, clienteData) {
@@ -64,19 +74,36 @@ class Cliente {
 
         static login(email, password) {
             return new Promise((resolve, reject) => {
-                db.query('SELECT * FROM clientes WHERE email = ?', email, (err, results) => {
+                db.query('SELECT * FROM clientes WHERE email = ?', email, async (err, results) => {
                     if (err) {
                         console.error('Error en la consulta de login:', err);
                         return reject(err);
                     }
-                    if (results.length === 0) {
-                        return resolve({ success: false, message: 'Usuario no encontrado' });
-                    }
                     const cliente = results[0];
-                    if (cliente.password !== password) {
-                        return resolve({ success: false, message: 'Contraseña incorrecta' });
+                    if (!cliente) {
+                        console.error('Cliente no encontrado para el email:', email);
+                        return reject(new Error('Cliente no encontrado'));
                     }
-                    resolve({ success: true, data: cliente });
+                    
+                    console.log('Cliente encontrado:', cliente);
+                    console.log('Contraseña ingresada:', password);
+                    console.log('Contraseña almacenada:', cliente.password);
+                    
+                    try {
+                        const validPassword = await bcrypt.compare(password, cliente.password);
+                        console.log('Resultado de la comparación de contraseñas:', validPassword);
+                        if (!validPassword) {
+                            console.error('Contraseña incorrecta para el email:', email);
+                            return reject(new Error('Contraseña incorrecta'));
+                        }
+        
+                        // No enviar la contraseña en la respuesta
+                        delete cliente.password;
+                        resolve(cliente);
+                    } catch (compareErr) {
+                        console.error('Error al comparar las contraseñas:', compareErr);
+                        return reject(compareErr);
+                    }
                 });
             });
         }

@@ -17,11 +17,12 @@ document.getElementById('togglePassword').addEventListener('click', function() {
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+   const loginInfo = {
+        email: document.getElementById("email").value,
+        password: document.getElementById("password").value,
+   }
     const tipoUsuario = document.getElementById("tipoUsuario").value;
-
-    const loginUrl = tipoUsuario === 'agente' ? '/api/agentes/login' : '/api/clientes';
+    const loginUrl = tipoUsuario === 'agente' ? '/api/agentes/login' : '/api/clientes/login';
 
     try {
         const response = await fetch(loginUrl, {
@@ -29,70 +30,23 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify(loginInfo)
         });
-        const data = await response.json();
+        const data = await response.json();    
 
         console.log("Respuesta completa del servidor:", data);
 
-        if (response.ok) {
-            // Usamos la estructura de respuesta esperada para guardar el token en localStorage
-            if (data.success && data.data) {                
-                localStorage.setItem("token", data.data.token);
-                localStorage.setItem("user", JSON.stringify(data.data.agente || data.data.cliente));
-
-                if (tipoUsuario === 'agente') {
-                    window.location.href = 'agentes.html';
-                } else {
-                    window.location.href = 'clientes.html';
-                }
-
-                const isAdmin = data.data.agente && (data.data.agente.nombre === 'admin' || data.data.agente.email === 'admin@ejemplo.com');
-                localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
-                
-            } else if (data.token && (data.agente || data.cliente)) {
-                localStorage.setItem("token", data.token);
-                localStorage.setItem("user", JSON.stringify(data.agente || data.cliente));
-                const isAdmin = data.agente && (data.agente.nombre === 'admin' || data.agente.email === 'admin@ejemplo.com');
-                localStorage.setItem("isAdmin", JSON.stringify(isAdmin));
-            } else {
-                console.error("Estructura de respuesta inesperada:", data);
-                throw new Error("Respuesta del servidor no válida");
-            }
-
-            if (localStorage.getItem("token")) {
-                console.log("Token guardado en localStorage");
-            } else {
-                console.error("No se ha recibido token");
-            }
-
-            if (localStorage.getItem("user")) {
-                console.log("Usuario guardado en localStorage");
-            } else {
-                console.error("No se ha recibido usuario");
-            }
-            
-            // Establecer permisos por defecto
-            const defaultPermissions = {
-                canEdit: true,
-                canDelete: true,
-                canAdd: true
-            };
-
-            // Guardar los permisos en localStorage
-            localStorage.setItem("userPermissions", JSON.stringify(defaultPermissions));
-            
-            // Redirigir a la página de lista de agentes o clientes
+        if (data.success) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.data));
             window.location.href = tipoUsuario === 'agente' ? 'agentes.html' : 'clientes.html';
         } else {
-            // Mostrar mensaje de error
             const messageElement = document.getElementById("loginMessage");
             messageElement.textContent = data.message || 'Error en el inicio de sesión';
             messageElement.classList.remove('d-none');
         }
     } catch (error) {
         console.error("Error:", error);
-        // Mostrar mensaje de error genérico
         const messageElement = document.getElementById("loginMessage");
         messageElement.textContent = 'Error al conectar con el servidor';
         messageElement.classList.remove('d-none');
